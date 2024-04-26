@@ -44,7 +44,7 @@ class HTTPConnection:
 
         raise ConnectionRefusedError("Session is not open")
 
-    async def get(self, uri: str) -> JsonType:
+    async def get(self, uri: str, headers: dict | None = None) -> JsonType:
         """Perform HTTP GET request and return response content as JSON.
 
         Args:
@@ -54,7 +54,7 @@ class HTTPConnection:
 
         """
         session = self.get_session()
-        async with session.get(self.full_url(uri)) as response:
+        async with session.get(self.full_url(uri), headers=headers) as response:
             return await response.json()
 
     async def get_bytes(self, uri: str) -> tuple[ClientResponse, bytes]:
