@@ -1,105 +1,120 @@
-from collections.abc import Callable, Mapping
-from typing import Any
-
-Checker = Callable[[Any], bool]
+from collections.abc import Iterator, Mapping
+from dataclasses import dataclass
+from typing import Any, Literal
 
 
 def is_metadata_object(v: Any) -> bool:
     return isinstance(v, dict) and "writeable" in v and "type" in v
 
 
-def is_not_dict(v: Any) -> bool:
-    return not isinstance(v, dict)
+@dataclass
+class OdinParameter:
+    uri: str
+    """Full URI."""
+    subsystem: str
+    """Subsystem within detector API."""
+    subsubsystem: str
+    """Subsubsystem within subsystem."""
+    mode: Literal["status", "config", ""]
+    """Mode of parameter within subsystem."""
+    metadata: dict[str, Any]
+    """JSON response from GET of parameter."""
+    has_unique_key: bool = True
+    """Whether this parameter has a unique key across all subsystems."""
+
+    @property
+    def key(self) -> str:
+        return self.uri.split("/")[-1]
+
+    @property
+    def name(self) -> str:
+        """Unique name of parameter across all subsystems."""
+        return (
+            self.key
+            if self.has_unique_key
+            else f"{self.subsubsystem or self.subsystem}_{self.key}"
+        )
 
 
-# value_checker: method to determine if a dictionary value relates to an actual param
-# value or if it is another dict with params nested inside.
-def flatten_dict(
-    dd: Mapping[str, Any],
-    separator: str = "/",
-    prefix: str = "",
-    value_checker: Checker = is_not_dict,
-) -> dict[str, Any]:
-    if not value_checker(dd):
-        return {
-            prefix + separator + k if prefix else k: v
-            for kk, vv in dd.items()
-            for k, v in flatten_dict(vv, separator, kk, value_checker).items()
-        }
-    else:
-        return {prefix: dd}
+def create_odin_parameters(metadata: Mapping[str, Any]) -> list[OdinParameter]:
+    """_walk metadata and create parameters for the leaves, flattening path with '/'s.
+
+    Args:
+        metadata: JSON metadata from Odin server
+
+    Returns":
+        List of ``OdinParameter``
+
+    """
+    odin_metadata = _walk_odin_metadata(metadata)
+
+    odin_parameters = []
+    for uri, metadata in odin_metadata:
+        uri_path = uri.split("/")
+        odin_parameters.append(
+            OdinParameter(
+                uri=uri,
+                mode=uri_path[1] if len(uri_path) >= 3 else "",
+                # TODO: Sanitise Group name more generically
+                subsystem=uri_path[2].replace("_", "") if len(uri_path) >= 4 else "",
+                subsubsystem=uri_path[3] if len(uri_path) >= 5 else "",
+                metadata=metadata,
+            )
+        )
+
+    return odin_parameters
 
 
-def unflatten_dict(
-    dd: dict[str, Any], separator: str = "/", reverse_indexing: bool = False
-) -> Mapping[str, Any]:
-    output: dict[str, Any] = {}
-    for key, val in dd.items():
-        key_parts = key.split(separator)
-        if reverse_indexing:
-            key_parts = key_parts[::-1]
-        subtree = output
-        np = len(key_parts)
-        for idx, part in enumerate(key_parts):
-            if part not in subtree:
-                subtree[part] = {}
-            if idx + 1 == np:
-                subtree[part] = val
-            subtree = subtree[part]
-    return output
+def _walk_odin_metadata(
+    tree: dict[str, Any], prefix: str = ""
+) -> Iterator[tuple[str, dict[str, Any]]]:
+    """Walk through tree and yield the leaves and their paths.
 
+    Args:
+        tree: Tree to walk
+        prefix: Path so far
 
-def map_short_name_to_path_and_value(
-    parameters: Mapping[str, Any], separator: str, value_checker: Checker = is_not_dict
-) -> dict[str, tuple[str, Any]]:
-    # flattens so that we end up with a dict with keys of api path and values of
-    # required metadata needed to construct FastCS Attrs
-    flattened = flatten_dict(parameters, separator, value_checker=value_checker)
-    # then inverts the tree so that the least significant parts of the path are grouped
-    # together, to make it easier to reduce the path names
-    inverse_tree = unflatten_dict(flattened, separator, reverse_indexing=True)
+    Returns:
+        (path to leaf, value of leaf)
 
-    def get_name_mapping(
-        tree: Mapping[str, Any],
-        name_parts: list[str] | None = None,
-        parts_needed: int = 1,
-        mapping: dict[str, str] | None = None,
-    ) -> dict[str, str]:
-        if mapping is None:
-            mapping = {}
-        if name_parts is None:
-            name_parts = []
-        for part, subtree in tree.items():
-            name: list[str] = [part] + name_parts
-            if value_checker(subtree):
-                full_name = separator.join(name)
-                short_name = "_".join(name[-parts_needed:])
-                mapping[full_name] = short_name
-            elif isinstance(subtree, dict):
-                get_name_mapping(
-                    subtree,  # type: ignore
-                    name,
-                    len(name) + 1 if len(subtree) > 1 else parts_needed,  # type: ignore
-                    mapping,
-                )
+    """
+    for node_name, node_value in tree.items():
+        node_path = "/".join((prefix, node_name)) if prefix else node_name
+
+        if isinstance(node_value, dict) and not is_metadata_object(node_value):
+            yield from _walk_odin_metadata(node_value, node_path)
+        elif isinstance(node_value, list) and all(
+            isinstance(m, dict) for m in node_value
+        ):
+            for sub_node in node_value:
+                # TODO: Insert index into path?
+                yield from _walk_odin_metadata(sub_node, node_path)
+        else:
+            if isinstance(node_value, dict):
+                metadata = node_value
             else:
-                raise TypeError(
-                    f"Can not parse subtree {subtree} {type(subtree)} {name} {tree}"
-                )
-        return mapping
+                # TODO: This won't be needed when all parameters provide metadata
+                metadata = {
+                    "value": node_value,
+                    "type": type(node_value).__name__,
+                    "writeable": "/status/" not in node_path,
+                }
 
-    output: dict[str, tuple[str, Any]] = {}
-    # there has to be a simpler way to do this...
-    for full_name, short_name in get_name_mapping(inverse_tree).items():
-        output[short_name] = (full_name, flattened.get(full_name))
-    return output
+            yield (node_path, metadata)
 
 
-def get_by_path(config: Mapping[str, Any], path: str, delimiter: str = "/") -> Any:
-    parts = path.split("/")
-    if len(parts) == 1:
-        return config[parts[0]]
-    elif parts[0] in config:
-        return get_by_path(config[parts[0]], delimiter.join(parts[1:]))
-    else:
-        raise ValueError(f"Could not retrieve {parts[-1]} from mapping.")
+def tag_key_clashes(parameters: list[OdinParameter]):
+    """Find key clashes between subsystems and tag parameters to use extended name.
+
+    Modifies list of parameters in place.
+
+    Args:
+        parameters: Parameters to search
+
+    """
+    for idx, parameter in enumerate(parameters):
+        for other in parameters[idx + 1 :]:
+            if parameter.key == other.key:
+                parameter.has_unique_key = False
+                other.has_unique_key = False
+                break

@@ -7,17 +7,17 @@ from fastcs.attributes import AttrR, AttrRW, AttrW, Handler
 from fastcs.connections.ip_connection import IPConnectionSettings
 from fastcs.controller import Controller
 from fastcs.datatypes import Bool, Float, Int, String
-from fastcs.wrappers import command
 
 from odin_fastcs.http_connection import HTTPConnection
 from odin_fastcs.util import (
+    create_odin_parameters,
     get_by_path,
-    is_metadata_object,
-    is_not_dict,
-    map_short_name_to_path_and_value,
+    tag_key_clashes,
 )
 
 types = {"float": Float(), "int": Int(), "bool": Bool(), "str": String()}
+
+REQUEST_METADATA_HEADER = {"Accept": "application/json;metadata=true"}
 
 
 class AdapterResponseError(Exception): ...
@@ -40,7 +40,7 @@ class ParamTreeHandler(Handler):
             if "error" in response:
                 raise AdapterResponseError(response["error"])
         except Exception as e:
-            logging.error(f"put failed: {e}", attr)
+            logging.error("Update loop failed for %s:\n%s", self.path, e)
 
     async def update(
         self,
@@ -49,10 +49,11 @@ class ParamTreeHandler(Handler):
     ) -> None:
         try:
             response = await controller._connection.get(self.path)
-            value = response["value"]
+            # TODO: Don't like this...
+            value = response[self.path.split("/")[-1]]
             await attr.set(value)
         except Exception as e:
-            logging.error(f"update loop failed: {e}", self.path)
+            logging.error("Update loop failed for %s:\n%s", self.path, e)
 
 
 @dataclass
@@ -65,10 +66,11 @@ class OdinConfigurationHandler(Handler):
             value = get_by_path(controller._cached_config_params, self.path)
             await attr.set(value)
         except Exception as e:
-            logging.error(f"update loop failed: {e}", self.path)
+            logging.error("Update loop failed for %s:\n%s", self.path, e)
 
 
 class OdinController(Controller):
+
     def __init__(
         self,
         settings: IPConnectionSettings,
@@ -104,79 +106,38 @@ class OdinController(Controller):
         self._connection.open()
 
     async def _connect_parameter_tree(self):
-        response = await self._connection.get(self._api_prefix + "/config/param_tree")
-        existing_members = dir(self)
-        for param, entry in map_short_name_to_path_and_value(
-            response["value"], "/", is_metadata_object
-        ).items():
-            full_path, metadata = entry
-            if "writeable" in metadata and metadata["writeable"]:
+        response = await self._connection.get(
+            self._api_prefix, headers=REQUEST_METADATA_HEADER
+        )
+
+        parameters = create_odin_parameters(response)
+        tag_key_clashes(parameters)
+
+        for parameter in parameters:
+            if "writeable" in parameter.metadata and parameter.metadata["writeable"]:
                 attr_class = AttrRW
             else:
                 attr_class = AttrR
-            if metadata["type"] not in types:
-                logging.warning(
-                    f"Could not add parameter {param} of type {metadata['type']}"
-                )
+            if parameter.metadata["type"] not in types:
+                logging.warning(f"Could not handle parameter {parameter}")
                 # this is really something I should handle here
                 continue
             allowed = (
-                metadata["allowed_values"] if "allowed_values" in metadata else None
+                parameter.metadata["allowed_values"]
+                if "allowed_values" in parameter.metadata
+                else None
             )
             attr = attr_class(
-                types[metadata["type"]],
+                types[parameter.metadata["type"]],
                 handler=ParamTreeHandler(
-                    f"{self._api_prefix}/{full_path}", allowed_values=allowed
+                    f"{self._api_prefix}/{parameter.uri}", allowed_values=allowed
+                ),
+                group=(
+                    f"{parameter.mode.capitalize()}{parameter.subsystem.capitalize()}"
                 ),
             )
-            attr_name = (
-                self._process_prefix + "_" + param
-                if param in existing_members
-                else param
-            )
-            attr_name = attr_name.replace(".", "")
-            # TODO: instead we should get the next lowest level part of the name, e.g.
-            # config/hdf/path could become hdf_path not fp_path
-            setattr(self, attr_name, attr)
 
-    async def _connect_process_params(self):
-        # from C++ client
-        response = await self._connection.get(
-            self._api_prefix + "/config/client_params"
-        )
-        self._cached_config_params = response["value"]
-        for process, params in response["value"].items():
-            if len(response["value"]) > 1:
-                prefix = f"{self._process_prefix}{int(process) + 1}_"
-            else:
-                prefix = ""
-            # this could take a long time with 100 pairs of processes.. oh well?
-            output = map_short_name_to_path_and_value(params, "/", is_not_dict)
-            for param, entry in output.items():
-                full_path, value = entry  # bit janky
-                type_name = type(value).__name__
-                if type_name not in types:
-                    logging.warning(f"Couldn't make {param} of type {type_name}")
-                    continue
-                value_type = types[type_name]
-                attr = AttrR(  # only readable for time being
-                    value_type,
-                    handler=OdinConfigurationHandler(f"{process}/{full_path}"),
-                    group=f"{self._process_prefix}{int(process)+1}".capitalize(),
-                    # TODO: can we do subgroups? to handle multiple blocks
-                    # when we have e.g. multiple frame processor processes
-                )
-                settable_path = f"{prefix}{param}"
-                setattr(self, settable_path, attr)
-
-    # @scan(0.2)
-    @command()
-    async def _update_configuration(self):
-        if self._has_process_params:
-            response = await self._connection.get(
-                self._api_prefix + "/config/client_params"
-            )
-            self._cached_config_params = response["value"]
+            setattr(self, parameter.name.replace(".", ""), attr)
 
 
 class OdinTopController(Controller):
@@ -193,7 +154,7 @@ class OdinTopController(Controller):
 class FPOdinController(OdinController):
     def __init__(self, settings: IPConnectionSettings, api: str = "0.1"):
         super().__init__(
-            settings, f"api/{api}/fp", "FP", param_tree=True, process_params=True
+            settings, f"api/{api}/fp", "FP", param_tree=True, process_params=False
         )
 
 
