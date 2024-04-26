@@ -1,15 +1,12 @@
-from argparse import ArgumentParser
+from typing import Optional
 
-from fastcs.backends.epics.backend import EpicsBackend
-from fastcs.backends.epics.gui import EpicsGUIOptions
-from fastcs.backends.epics.ioc import EpicsIOCOptions
+import typer
+from fastcs.backends.asyncio_backend import AsyncioBackend
 from fastcs.connections.ip_connection import IPConnectionSettings
 from fastcs.mapping import Mapping
 
 from odin_fastcs.odin_controller import (
     FPOdinController,
-    FROdinController,
-    MLOdinController,
     OdinTopController,
 )
 
@@ -18,52 +15,61 @@ from . import __version__
 __all__ = ["main"]
 
 
-def get_controller() -> FPOdinController:
-    main_cont = OdinTopController()
-    frcont = FROdinController(IPConnectionSettings("127.0.0.1", 8888))
-    main_cont.register_sub_controller(frcont)
-    fpcont = FPOdinController(IPConnectionSettings("127.0.0.1", 8888))
-    main_cont.register_sub_controller(fpcont)
-    mlcont = MLOdinController(IPConnectionSettings("127.0.0.1", 8888))
-    main_cont.register_sub_controller(mlcont)
-
-    return main_cont
+app = typer.Typer()
 
 
-def create_backend() -> EpicsBackend:
-    cont = get_controller()
-    m = Mapping(cont)
-    return EpicsBackend(m)
+def version_callback(value: bool):
+    if value:
+        typer.echo(__version__)
+        raise typer.Exit()
 
 
-def create_gui(backend, prefix) -> None:
-    options = EpicsGUIOptions(prefix=prefix)
-    backend.create_gui(options)
+@app.callback()
+def main(
+    # TODO: typer does not support `bool | None` yet
+    # https://github.com/tiangolo/typer/issues/533
+    version: Optional[bool] = typer.Option(  # noqa
+        None,
+        "--version",
+        callback=version_callback,
+        is_eager=True,
+        help="Print the version and exit",
+    ),
+):
+    pass
 
 
-def test_ioc(backend, prefix) -> None:
-    ioc = backend.get_ioc()
-    options = EpicsIOCOptions(name=prefix)
-    ioc.run(options)
+@app.command()
+def ioc(pv_prefix: str = typer.Argument()):
+    from fastcs.backends.epics.backend import EpicsBackend
+
+    mapping = get_controller_mapping()
+
+    backend = EpicsBackend(mapping, pv_prefix)
+    backend.create_gui()
+    backend.get_ioc().run()
 
 
-# def test_asyncio_backend() -> None:
-#     tcont = get_controller()
-#     m = Mapping(tcont)
-#     backend = AsyncioBackend(m)
-#     backend.run_interactive_session()
+@app.command()
+def asyncio():
+    mapping = get_controller_mapping()
+
+    backend = AsyncioBackend(mapping)
+    backend.run_interactive_session()
 
 
-def main(args=None):
-    parser = ArgumentParser()
-    parser.add_argument("-v", "--version", action="version", version=__version__)
-    args = parser.parse_args(args)
-    backend = create_backend()
-    prefix = "HQV-EA-EIG-01"
-    create_gui(backend, prefix)
-    test_ioc(backend, prefix)
+def get_controller_mapping() -> Mapping:
+    controller = OdinTopController()
+    # fr_controller = FROdinController(IPConnectionSettings("127.0.0.1", 8888))
+    # controller.register_sub_controller(fr_controller)
+    fp_controller = FPOdinController(IPConnectionSettings("127.0.0.1", 8888))
+    controller.register_sub_controller(fp_controller)
+    # ml_controller = MLOdinController(IPConnectionSettings("127.0.0.1", 8888))
+    # controller.register_sub_controller(ml_controller)
+
+    return Mapping(controller)
 
 
 # test with: python -m odin_fastcs
 if __name__ == "__main__":
-    main()
+    app()
