@@ -118,3 +118,13 @@ def tag_key_clashes(parameters: list[OdinParameter]):
                 parameter.has_unique_key = False
                 other.has_unique_key = False
                 break
+
+
+def get_by_path(config: Mapping[str, Any], path: str, delimiter: str = "/") -> Any:
+    parts = path.split("/")
+    if len(parts) == 1:
+        return config[parts[0]]
+    elif parts[0] in config:
+        return get_by_path(config[parts[0]], delimiter.join(parts[1:]))
+    else:
+        raise ValueError(f"Could not retrieve {parts[-1]} from mapping.")

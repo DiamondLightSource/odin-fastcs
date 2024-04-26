@@ -5,6 +5,42 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Odin IOC",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "odin_fastcs",
+            "justMyCode": false,
+            "console": "integratedTerminal",
+            "args": ["ioc", "ODIN"]
+        },
+        {
+            "name": "Odin Asyncio",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "odin_fastcs",
+            "justMyCode": false,
+            "console": "integratedTerminal",
+            "args": ["asyncio"]
+        },
+        {
+            "name": "FrameProcessor",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "odin.main",
+            "justMyCode": false,
+            "console": "integratedTerminal",
+            "args": ["--config", "${workspaceFolder}/dev/odin_server.cfg"]
+        },
+        {
+            "name": "Odin Control FP",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "odin.main",
+            "justMyCode": false,
+            "console": "integratedTerminal",
+            "args": ["--config", "${workspaceFolder}/dev/odin_server.cfg"]
+        },
+        {
             "name": "Debug Unit Test",
             "type": "debugpy",
             "request": "launch",
@@ -18,6 +54,6 @@
                 // Enable break on exception when debugging tests (see: tests/conftest.py)
                 "PYTEST_RAISE": "1",
             },
-        }
+        },
     ]
 }
