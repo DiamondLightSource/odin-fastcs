@@ -1,0 +1,121 @@
+{
+    "api": {"value": 0.1, "writeable": false, "type": "float"},
+    "module": {"value": "OdinDataAdapter", "writeable": false, "type": "str"},
+    "endpoints": {
+        "value": [{"ip_address": "127.0.0.1", "port": 10004}],
+        "writeable": false,
+        "type": "list"
+    },
+    "count": {"value": 1, "writeable": false, "type": "int"},
+    "update_interval": {"value": 0.2, "writeable": false, "type": "float"},
+    "0": {
+        "status": {
+            "shared_memory": {"configured": false},
+            "plugins": {"names": ["hdf", "offset", "param"]},
+            "hdf": {
+                "writing": false,
+                "frames_max": 0,
+                "frames_written": 0,
+                "frames_processed": 0,
+                "file_path": "",
+                "file_name": "",
+                "acquisition_id": "",
+                "processes": 4,
+                "rank": 0,
+                "timeout_active": false,
+                "timing": {
+                    "last_create": 0,
+                    "max_create": 0,
+                    "mean_create": 0,
+                    "last_write": 0,
+                    "max_write": 0,
+                    "mean_write": 0,
+                    "last_flush": 0,
+                    "max_flush": 0,
+                    "mean_flush": 0,
+                    "last_close": 0,
+                    "max_close": 0,
+                    "mean_close": 0,
+                    "last_process": 0,
+                    "max_process": 0,
+                    "mean_process": 0
+                }
+            },
+            "offset": {
+                "timing": {
+                    "last_process": 3674197528,
+                    "max_process": 32767,
+                    "mean_process": 3674197560
+                }
+            },
+            "param": {
+                "timing": {"last_process": 0, "max_process": 0, "mean_process": 0}
+            },
+            "timestamp": "2024-04-26T16:19:06.264117",
+            "error": [],
+            "connected": true
+        },
+        "config": {
+            "ctrl_endpoint": "tcp://0.0.0.0:10004",
+            "meta_endpoint": "tcp://*:10008",
+            "fr_setup": {
+                "fr_ready_cnxn": "tcp://127.0.0.1:10001",
+                "fr_release_cnxn": "tcp://127.0.0.1:10002"
+            },
+            "hdf": {
+                "process": {
+                    "number": 4,
+                    "rank": 0,
+                    "frames_per_block": 1,
+                    "blocks_per_file": 0,
+                    "earliest_version": false,
+                    "alignment_threshold": 1,
+                    "alignment_value": 1
+                },
+                "file": {
+                    "path": "/tmp",
+                    "prefix": "/tmp",
+                    "use_numbers": false,
+                    "first_number": 1,
+                    "postfix": "",
+                    "extension": "h5",
+                    "create_error_duration": 10002,
+                    "write_error_duration": 10000,
+                    "flush_error_duration": 10000,
+                    "close_error_duration": 10000
+                },
+                "frames": 0,
+                "master": "",
+                "acquisition_id": "",
+                "timeout_timer_period": 0,
+                "dataset": {
+                    "compressed_size": {
+                        "datatype": "uint32",
+                        "compression": "none",
+                        "blosc_compressor": 0,
+                        "blosc_level": 0,
+                        "blosc_shuffle": 0,
+                        "chunks": [1000]
+                    },
+                    "data": {
+                        "datatype": "uint8",
+                        "compression": "none",
+                        "blosc_compressor": 0,
+                        "blosc_level": 0,
+                        "blosc_shuffle": 0
+                    },
+                    "uid": {
+                        "datatype": "uint64",
+                        "compression": "none",
+                        "blosc_compressor": 0,
+                        "blosc_level": 0,
+                        "blosc_shuffle": 0,
+                        "chunks": [1000]
+                    }
+                }
+            },
+            "offset": {"offset_adjustment": 0},
+            "param": {"parameter": {"uid": {"adjustment": 1, "input": ""}}}
+        }
+    }
+}
