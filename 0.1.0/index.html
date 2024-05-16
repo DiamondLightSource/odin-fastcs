@@ -478,12 +478,12 @@ odin-data install prefix and the path to a venv with odin-control and odin-data
 installed. This will populate the dev config with your environment - these changes
 should not be checked in. The dev deployment can then be run with <code class="docutils literal notranslate"><span class="pre">dev/start.sh</span></code>.</p>
 <p>Currently Odin FastCS depends on branches of both odin-control and odin-data, so these
-branches are provided as dev dependencies for convenience. Make a Python&gt;=3.11 venv
-and then <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.[dev]</span></code> will give an environment that the control server and
-meta writer can run in. For the frameProcessor and frameReceiver, check out the
+branches are provided in <code class="docutils literal notranslate"><span class="pre">dev/requirements.txt</span></code> for convenience. Make a venv and then
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">dev/requirements.txt</span></code> will give an environment that the control server
+and meta writer can run in. For the frameProcessor and frameReceiver, check out the
 fastcs-dev branch of odin-data and build. It is recommended to use the vscode CMake
 configuration to do this.</p>
-<p>If you need to run a local version of any of the applications, stop that process in the
+<p>If you need to run a dev version of any of the applications, stop that process in the
 deployment and run/debug it manually. There is a vscode launch config for an odin server
 using the same config as the dev deployment for this purpose.</p>
 <p>At boot time, FastCS will generate UIs that can be opened in Phoebus. This is the
