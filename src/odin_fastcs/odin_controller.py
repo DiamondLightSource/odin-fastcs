@@ -32,7 +32,7 @@ class ParamTreeHandler(Handler):
 
     async def put(
         self,
-        controller: "OdinController",
+        controller: "OdinSubController",
         attr: AttrW[Any],
         value: Any,
     ) -> None:
@@ -46,7 +46,7 @@ class ParamTreeHandler(Handler):
 
     async def update(
         self,
-        controller: "OdinController",
+        controller: "OdinSubController",
         attr: AttrR[Any],
     ) -> None:
         try:
@@ -63,15 +63,24 @@ class ParamTreeHandler(Handler):
             logging.error("Update loop failed for %s:\n%s", self.path, e)
 
 
-class OdinController(SubController):
+class OdinSubController(SubController):
     def __init__(
         self,
         connection: HTTPConnection,
         param_tree: Mapping[str, Any],
         api_prefix: str,
-        process_prefix: str,
+        path_prefix: str,
     ):
-        super().__init__(process_prefix)
+        """A ``SubController`` for a subsystem in an Odin control server.
+
+        Args:
+            connection: HTTP connection to communicate with Odin server
+            param_tree: The parameter tree from the Odin server for this subsytem
+            api_prefix: The base URL of this subsystem in the Odin server API
+            path_prefix: The path of this ``Controller`` within a parent ``Controller``
+
+        """
+        super().__init__(path_prefix)
 
         self._connection = connection
         self._param_tree = param_tree
@@ -115,10 +124,8 @@ class OdinController(SubController):
             setattr(self, parameter.name.replace(".", ""), attr)
 
 
-class OdinTopController(Controller):
-    """
-    Connects all sub controllers on connect
-    """
+class OdinController(Controller):
+    """A root ``Controller`` for an Odin control server."""
 
     API_PREFIX = "api/0.1"
 
@@ -159,7 +166,7 @@ class OdinTopController(Controller):
                 if k.isdigit() and isinstance(v, Mapping)
             }
 
-            odin_controller = OdinController(
+            odin_controller = OdinSubController(
                 self._connection,
                 root_tree,
                 f"{self.API_PREFIX}/{adapter}",
@@ -169,7 +176,7 @@ class OdinTopController(Controller):
             self.register_sub_controller(odin_controller)
 
             for idx, tree in indexed_trees.items():
-                odin_controller = OdinController(
+                odin_controller = OdinSubController(
                     self._connection,
                     tree,
                     f"{self.API_PREFIX}/{adapter}/{idx}",
@@ -184,7 +191,7 @@ class OdinTopController(Controller):
         self._connection.open()
 
 
-class FPOdinController(OdinController):
+class OdinFPController(OdinSubController):
     def __init__(
         self,
         connection: HTTPConnection,
@@ -199,7 +206,7 @@ class FPOdinController(OdinController):
         )
 
 
-class FROdinController(OdinController):
+class FROdinController(OdinSubController):
     def __init__(
         self,
         connection: HTTPConnection,
@@ -214,7 +221,7 @@ class FROdinController(OdinController):
         )
 
 
-class MLOdinController(OdinController):
+class MLOdinController(OdinSubController):
     def __init__(
         self,
         connection: HTTPConnection,

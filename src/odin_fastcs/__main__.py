@@ -8,7 +8,7 @@ from fastcs.connections.ip_connection import IPConnectionSettings
 from fastcs.mapping import Mapping
 
 from odin_fastcs.odin_controller import (
-    OdinTopController,
+    OdinController,
 )
 
 from . import __version__
@@ -62,7 +62,7 @@ def asyncio():
 
 
 def get_controller_mapping() -> Mapping:
-    controller = OdinTopController(IPConnectionSettings("127.0.0.1", 8888))
+    controller = OdinController(IPConnectionSettings("127.0.0.1", 8888))
 
     return Mapping(controller)
 
