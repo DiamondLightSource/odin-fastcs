@@ -152,7 +152,6 @@ class OdinTopController(Controller):
             response = await self._connection.get(
                 f"{self.API_PREFIX}/{adapter}", headers=REQUEST_METADATA_HEADER
             )
-            assert isinstance(response, Mapping)
             root_tree = {k: v for k, v in response.items() if not k.isdigit()}
             indexed_trees = {
                 k: v
