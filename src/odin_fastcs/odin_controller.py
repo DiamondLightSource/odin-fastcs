@@ -106,10 +106,8 @@ class OdinSubController(SubController):
                 else None
             )
 
-            if len(parameter.uri) >= 3:
-                group = snake_to_pascal(
-                    f"{parameter.uri[0].capitalize()}_{parameter.uri[1].capitalize()}"
-                )
+            if len(parameter.path) >= 2:
+                group = snake_to_pascal(f"{parameter.path[0].capitalize()}")
             else:
                 group = None
 
