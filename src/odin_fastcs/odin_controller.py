@@ -12,6 +12,7 @@ from fastcs.util import snake_to_pascal
 
 from odin_fastcs.http_connection import HTTPConnection
 from odin_fastcs.util import (
+    OdinParameter,
     create_odin_parameters,
 )
 
@@ -86,8 +87,10 @@ class OdinSubController(SubController):
         self._param_tree = param_tree
         self._api_prefix = api_prefix
 
-    async def _create_parameter_tree(self):
+    def create_attributes(self):
+        """Create ``Attributes`` from Odin server parameter tree."""
         parameters = create_odin_parameters(self._param_tree)
+        parameters = self.process_odin_parameters(parameters)
 
         for parameter in parameters:
             if "writeable" in parameter.metadata and parameter.metadata["writeable"]:
@@ -120,6 +123,10 @@ class OdinSubController(SubController):
             )
 
             setattr(self, parameter.name.replace(".", ""), attr)
+
+    def process_odin_parameters(self, parameters: list[OdinParameter]):
+        """Hook for child classes to modify the generated ``OdinParameter``s."""
+        return parameters
 
 
 class OdinController(Controller):
@@ -164,26 +171,50 @@ class OdinController(Controller):
                 if k.isdigit() and isinstance(v, Mapping)
             }
 
-            odin_controller = OdinSubController(
+            adapter_root_controller = OdinSubController(
                 self._connection,
                 root_tree,
                 f"{self.API_PREFIX}/{adapter}",
                 f"{adapter.upper()}",
             )
-            await odin_controller._create_parameter_tree()
-            self.register_sub_controller(odin_controller)
+            adapter_root_controller.create_attributes()
+            self.register_sub_controller(adapter_root_controller)
 
             for idx, tree in indexed_trees.items():
-                odin_controller = OdinSubController(
+                adapter_controller = self._create_adapter_controller(
                     self._connection,
                     tree,
                     f"{self.API_PREFIX}/{adapter}/{idx}",
                     f"{adapter.upper()}{idx}",
                 )
-                await odin_controller._create_parameter_tree()
-                self.register_sub_controller(odin_controller)
+                adapter_controller = self._create_adapter_controller(
+                    self._connection, tree, adapter, idx
+                )
+                adapter_controller.create_attributes()
+                self.register_sub_controller(adapter_controller)
 
         await self._connection.close()
+
+    def _create_adapter_controller(
+        self,
+        connection: HTTPConnection,
+        param_tree: Mapping[str, Any],
+        adapter: str,
+        index: int,
+    ) -> OdinSubController:
+        """Create an ``OdinSubController`` for an adapter in an Odin control server."""
+
+        match adapter:
+            # TODO: May not be called "fp", it is configurable in the server
+            case "fp":
+                return OdinFPController(connection, param_tree, self.API_PREFIX, index)
+            case _:
+                return OdinSubController(
+                    connection,
+                    param_tree,
+                    f"{self.API_PREFIX}/{adapter}/{index}",
+                    f"{adapter.upper()}{index}",
+                )
 
     async def connect(self) -> None:
         self._connection.open()
@@ -194,14 +225,19 @@ class OdinFPController(OdinSubController):
         self,
         connection: HTTPConnection,
         param_tree: Mapping[str, Any],
-        api: str = "0.1",
+        api_prefix: str,
+        index: int,
     ):
         super().__init__(
-            connection,
-            param_tree,
-            f"api/{api}/fp",
-            "FP",
+            connection, param_tree, f"{api_prefix}/fp/{index}", f"FP{index}"
         )
+
+    def process_odin_parameters(self, parameters: list[OdinParameter]):
+        for parameter in parameters:
+            # First uri element is redundant status/config
+            parameter.set_path(parameter.uri[1:])
+
+        return parameters
 
 
 class FROdinController(OdinSubController):
