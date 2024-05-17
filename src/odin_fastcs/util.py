@@ -1,5 +1,5 @@
-from collections.abc import Iterator, Mapping
-from dataclasses import dataclass
+from collections.abc import Callable, Iterator, Mapping
+from dataclasses import dataclass, field
 from typing import Any
 
 
@@ -14,10 +14,21 @@ class OdinParameter:
     metadata: dict[str, Any]
     """JSON response from GET of parameter."""
 
+    _path: list[str] = field(default_factory=list)
+
+    @property
+    def path(self) -> str:
+        """Reduced path of parameter to override uri when constructing name."""
+        return self._path or self.uri
+
     @property
     def name(self) -> str:
         """Unique name of parameter."""
-        return "_".join(self.uri)
+        return "_".join(self.path)
+
+    def set_path(self, path: list[str]):
+        """Set reduced path of parameter to override uri when constructing name."""
+        self._path = path
 
 
 def create_odin_parameters(metadata: Mapping[str, Any]) -> list[OdinParameter]:
