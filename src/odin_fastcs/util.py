@@ -1,6 +1,6 @@
 from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, TypeVar
 
 
 def is_metadata_object(v: Any) -> bool:
@@ -105,3 +105,33 @@ def infer_metadata(parameter: Any, uri: list[str]):
         "type": type(parameter).__name__,
         "writeable": "config" in uri,
     }
+
+
+T = TypeVar("T")
+
+
+def partition(
+    elements: list[T], predicate: Callable[[T], bool]
+) -> tuple[list[T], list[T]]:
+    """Split a list of elements in two based on predicate.
+
+    If the predicate returns ``True``, the element will be placed in the truthy list,
+    if it does not, it will be placed in the falsy list.
+
+    Args:
+        elements: List of T
+        predicate: Predicate to filter the list with
+
+    Returns:
+        (truthy, falsy)
+
+    """
+    truthy: list[T] = []
+    falsy: list[T] = []
+    for parameter in elements:
+        if predicate(parameter):
+            truthy.append(parameter)
+        else:
+            falsy.append(parameter)
+
+    return truthy, falsy
