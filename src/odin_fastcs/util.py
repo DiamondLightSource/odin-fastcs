@@ -17,7 +17,7 @@ class OdinParameter:
     _path: list[str] = field(default_factory=list)
 
     @property
-    def path(self) -> str:
+    def path(self) -> list[str]:
         """Reduced path of parameter to override uri when constructing name."""
         return self._path or self.uri
 
@@ -61,8 +61,7 @@ def _walk_odin_metadata(
 
     """
     for node_name, node_value in tree.items():
-        if node_name:
-            node_path = path + [node_name]
+        node_path = path + [node_name]
 
         if isinstance(node_value, dict) and not is_metadata_object(node_value):
             yield from _walk_odin_metadata(node_value, node_path)
@@ -74,7 +73,7 @@ def _walk_odin_metadata(
                 yield from _walk_odin_metadata(sub_node, sub_node_path)
         else:
             # Leaves
-            if is_metadata_object(node_value):
+            if isinstance(node_value, dict) and is_metadata_object(node_value):
                 yield (node_path, node_value)
             elif isinstance(node_value, list):
                 if "config" in node_path:
@@ -93,7 +92,7 @@ def _walk_odin_metadata(
                 yield (node_path, infer_metadata(node_value, node_path))
 
 
-def infer_metadata(parameter: int | float | bool | str, uri: list[str]):
+def infer_metadata(parameter: Any, uri: list[str]):
     """Create metadata for a parameter from its type and URI.
 
     Args:
