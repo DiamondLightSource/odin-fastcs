@@ -171,30 +171,13 @@ class OdinController(Controller):
             response = await self._connection.get(
                 f"{self.API_PREFIX}/{adapter}", headers=REQUEST_METADATA_HEADER
             )
-            root_tree = {k: v for k, v in response.items() if not k.isdigit()}
-            indexed_trees = {
-                k: v
-                for k, v in response.items()
-                if k.isdigit() and isinstance(v, Mapping)
-            }
 
-            adapter_root_controller = OdinSubController(
-                self._connection,
-                create_odin_parameters(root_tree),
-                f"{self.API_PREFIX}/{adapter}",
-                [f"{adapter.upper()}"],
+            adapter_controller = self._create_adapter_controller(
+                self._connection, create_odin_parameters(response), adapter
             )
-            await adapter_root_controller.initialise()
-            adapter_root_controller.create_attributes()
-            self.register_sub_controller(adapter_root_controller)
-
-            for idx, tree in indexed_trees.items():
-                adapter_controller = self._create_adapter_controller(
-                    self._connection, create_odin_parameters(tree), adapter, int(idx)
-                )
-                await adapter_controller.initialise()
-                adapter_controller.create_attributes()
-                self.register_sub_controller(adapter_controller)
+            await adapter_controller.initialise()
+            adapter_controller.create_attributes()
+            self.register_sub_controller(adapter_controller)
 
         await self._connection.close()
 
@@ -203,39 +186,51 @@ class OdinController(Controller):
         connection: HTTPConnection,
         parameters: list[OdinParameter],
         adapter: str,
-        index: int,
     ) -> OdinSubController:
         """Create an ``OdinSubController`` for an adapter in an Odin control server."""
 
         match adapter:
             # TODO: May not be called "fp", it is configurable in the server
             case "fp":
-                return OdinFPController(connection, parameters, self.API_PREFIX, index)
+                return OdinFPAdapterController(
+                    connection, parameters, f"{self.API_PREFIX}/fp", ["FP"]
+                )
             case _:
                 return OdinSubController(
                     connection,
                     parameters,
-                    f"{self.API_PREFIX}/{adapter}/{index}",
-                    [f"{adapter.upper()}{index}"],
+                    f"{self.API_PREFIX}/{adapter}",
+                    [f"{adapter.upper()}"],
                 )
 
     async def connect(self) -> None:
         self._connection.open()
 
 
-class OdinFPController(OdinSubController):
-
-    def __init__(
-        self,
-        connection: HTTPConnection,
-        parameters: list[OdinParameter],
-        api_prefix: str,
-        index: int,
-    ):
-        super().__init__(
-            connection, parameters, f"{api_prefix}/fp/{index}", [f"FP{index}"]
+class OdinFPAdapterController(OdinSubController):
+    async def initialise(self):
+        idx_parameters, self._parameters = partition(
+            self._parameters, lambda p: p.uri[0].isdigit()
         )
 
+        while idx_parameters:
+            idx = idx_parameters[0].uri[0]
+            fp_parameters, idx_parameters = partition(
+                idx_parameters, lambda p, idx=idx: p.uri[0] == idx
+            )
+
+            adapter_controller = OdinFPController(
+                self._connection,
+                fp_parameters,
+                f"{self._api_prefix}/{idx}",
+                [f"FP{idx}"],
+            )
+            await adapter_controller.initialise()
+            adapter_controller.create_attributes()
+            self.register_sub_controller(adapter_controller)
+
+
+class OdinFPController(OdinSubController):
     async def initialise(self):
         plugins_response = await self._connection.get(
             f"{self._api_prefix}/status/plugins/names"
@@ -250,8 +245,10 @@ class OdinFPController(OdinSubController):
                     f"Did not find valid plugins in response:\n{plugins_response}"
                 )
 
-        # Remove redundant status/config from parameter path
         for parameter in self._parameters:
+            # Remove duplicate index from uri
+            parameter.uri = parameter.uri[1:]
+            # Remove redundant status/config from parameter path
             parameter.set_path(parameter.uri[1:])
 
         for plugin in plugins:
@@ -269,15 +266,7 @@ class OdinFPController(OdinSubController):
 
 
 class OdinFPPluginController(OdinSubController):
-    def __init__(
-        self,
-        connection: HTTPConnection,
-        parameters: list[OdinParameter],
-        api_prefix: str,
-        path: list[str],
-    ):
-        super().__init__(connection, parameters, api_prefix, path)
-
+    # TODO: Just use initialise?
     def process_odin_parameters(
         self, parameters: list[OdinParameter]
     ) -> list[OdinParameter]:
