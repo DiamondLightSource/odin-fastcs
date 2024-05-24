@@ -29,7 +29,7 @@
             "module": "odin.main",
             "justMyCode": false,
             "console": "integratedTerminal",
-            "args": ["--config", "${workspaceFolder}/dev/odin_server.cfg", "--logging", "debug"]
+            "args": ["--config", "${workspaceFolder}/dev/local/odin_server.cfg", "--logging", "debug"]
         },
         {
             "name": "Dump Server Response",

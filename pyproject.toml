@@ -42,6 +42,10 @@ dev = [
     "types-mock",
     "types-requests",
 ]
+odin = [
+    "odin-control @ git+https://github.com/odin-detector/odin-control@param-tree-replace",
+    "odin-data[meta_writer] @ git+https://github.com/odin-detector/odin-data@fastcs-dev#subdirectory=python",
+]
 
 [project.scripts]
 odin-fastcs = "odin_fastcs.__main__:app"
