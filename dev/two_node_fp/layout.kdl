@@ -6,10 +6,12 @@ layout {
         pane split_direction="horizontal" {
             pane command="<SCRIPT_DIR>/stFrameReceiver1.sh"
             pane command="<SCRIPT_DIR>/stFrameProcessor1.sh"
+            pane command="<SCRIPT_DIR>/stFrameReceiver2.sh"
+            pane command="<SCRIPT_DIR>/stFrameProcessor2.sh"
             pane command="<SCRIPT_DIR>/stMetaWriter.sh"
         }
         pane split_direction="horizontal" {
-            pane command="<SCRIPT_DIR>/stOdinServer.sh" start_suspended=true
+            pane command="<SCRIPT_DIR>/stOdinServer.sh"
         }
     }
     pane size=2 borderless=true {

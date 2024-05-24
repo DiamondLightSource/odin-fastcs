@@ -1,10 +1,10 @@
 [
   {
-    "frame_ready_endpoint": "tcp://127.0.0.1:10001",
-    "frame_release_endpoint": "tcp://127.0.0.1:10002",
+    "frame_ready_endpoint": "tcp://127.0.0.1:10011",
+    "frame_release_endpoint": "tcp://127.0.0.1:10012",
     "decoder_type": "DummyUDP",
     "decoder_path": "<ODIN_DATA>/lib",
-    "rx_ports": "61649",
+    "rx_ports": "61650",
     "max_buffer_mem": 840000000,
     "decoder_config": {
       "enable_packet_logging": false,
