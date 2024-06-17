@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -87,11 +88,21 @@ class OdinSubController(SubController):
         self._parameters = parameters
         self._api_prefix = api_prefix
 
-    def create_attributes(self):
-        """Create ``Attributes`` from Odin server parameter tree."""
-        parameters = self.process_odin_parameters(self._parameters)
+    async def initialise(self):
+        self._process_parameters()
+        self._create_attributes()
 
-        for parameter in parameters:
+    def _process_parameters(self):
+        """Hook to process ``OdinParameters`` before creating ``Attributes``.
+
+        For example, renaming or removing a section of the parameter path.
+
+        """
+        pass
+
+    def _create_attributes(self):
+        """Create controller ``Attributes`` from ``OdinParameters``."""
+        for parameter in self._parameters:
             if "writeable" in parameter.metadata and parameter.metadata["writeable"]:
                 attr_class = AttrRW
             else:
@@ -122,18 +133,6 @@ class OdinSubController(SubController):
             )
 
             setattr(self, parameter.name.replace(".", ""), attr)
-
-    async def initialise(self):
-        pass
-
-    def process_odin_parameters(
-        self, parameters: list[OdinParameter]
-    ) -> list[OdinParameter]:
-        """Hook for child classes to process parameters before creating attributes."""
-        return parameters
-
-    def create_odin_parameters(self):
-        return create_odin_parameters(self._parameter_tree)
 
 
 class OdinController(Controller):
@@ -176,7 +175,6 @@ class OdinController(Controller):
                 self._connection, create_odin_parameters(response), adapter
             )
             await adapter_controller.initialise()
-            adapter_controller.create_attributes()
             self.register_sub_controller(adapter_controller)
 
         await self._connection.close()
@@ -226,7 +224,6 @@ class OdinFPAdapterController(OdinSubController):
                 [f"FP{idx}"],
             )
             await adapter_controller.initialise()
-            adapter_controller.create_attributes()
             self.register_sub_controller(adapter_controller)
 
 
@@ -245,15 +242,27 @@ class OdinFPController(OdinSubController):
                     f"Did not find valid plugins in response:\n{plugins_response}"
                 )
 
+        self._process_parameters()
+        await self._create_plugin_sub_controllers(plugins)
+        self._create_attributes()
+
+    def _process_parameters(self):
         for parameter in self._parameters:
             # Remove duplicate index from uri
             parameter.uri = parameter.uri[1:]
             # Remove redundant status/config from parameter path
             parameter.set_path(parameter.uri[1:])
 
+    async def _create_plugin_sub_controllers(self, plugins: Sequence[str]):
         for plugin in plugins:
+
+            def __parameter_in_plugin(
+                parameter: OdinParameter, plugin: str = plugin
+            ) -> bool:
+                return parameter.path[0] == plugin
+
             plugin_parameters, self._parameters = partition(
-                self._parameters, lambda p, plugin=plugin: p.path[0] == plugin
+                self._parameters, __parameter_in_plugin
             )
             plugin_controller = OdinFPPluginController(
                 self._connection,
@@ -261,21 +270,15 @@ class OdinFPController(OdinSubController):
                 f"{self._api_prefix}",
                 self.path + [plugin],
             )
-            plugin_controller.create_attributes()
+            await plugin_controller.initialise()
             self.register_sub_controller(plugin_controller)
 
 
 class OdinFPPluginController(OdinSubController):
-    # TODO: Just use initialise?
-    def process_odin_parameters(
-        self, parameters: list[OdinParameter]
-    ) -> list[OdinParameter]:
-        for parameter in parameters:
+    def _process_parameters(self):
+        for parameter in self._parameters:
             # Remove plugin name included in controller base path
             parameter.set_path(parameter.path[1:])
-
-        # TODO: Make a copy?
-        return parameters
 
 
 class FROdinController(OdinSubController):
