@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from collections.abc import Mapping
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -12,7 +12,9 @@ from fastcs.util import snake_to_pascal
 
 from odin_fastcs.http_connection import HTTPConnection
 from odin_fastcs.util import (
+    OdinParameter,
     create_odin_parameters,
+    partition,
 )
 
 types = {"float": Float(), "int": Int(), "bool": Bool(), "str": String()}
@@ -32,7 +34,7 @@ class ParamTreeHandler(Handler):
 
     async def put(
         self,
-        controller: "OdinController",
+        controller: "OdinSubController",
         attr: AttrW[Any],
         value: Any,
     ) -> None:
@@ -46,7 +48,7 @@ class ParamTreeHandler(Handler):
 
     async def update(
         self,
-        controller: "OdinController",
+        controller: "OdinSubController",
         attr: AttrR[Any],
     ) -> None:
         try:
@@ -63,24 +65,44 @@ class ParamTreeHandler(Handler):
             logging.error("Update loop failed for %s:\n%s", self.path, e)
 
 
-class OdinController(SubController):
+class OdinSubController(SubController):
     def __init__(
         self,
         connection: HTTPConnection,
-        param_tree: Mapping[str, Any],
+        parameters: list[OdinParameter],
         api_prefix: str,
-        process_prefix: str,
+        path: list[str],
     ):
-        super().__init__(process_prefix)
+        """A ``SubController`` for a subsystem in an Odin control server.
+
+        Args:
+            connection: HTTP connection to communicate with Odin server
+            parameter_tree: The parameter tree from the Odin server for this subsytem
+            api_prefix: The base URL of this subsystem in the Odin server API
+            path: ``SubController`` path
+
+        """
+        super().__init__(path)
 
         self._connection = connection
-        self._param_tree = param_tree
+        self._parameters = parameters
         self._api_prefix = api_prefix
 
-    async def _create_parameter_tree(self):
-        parameters = create_odin_parameters(self._param_tree)
+    async def initialise(self):
+        self._process_parameters()
+        self._create_attributes()
 
-        for parameter in parameters:
+    def _process_parameters(self):
+        """Hook to process ``OdinParameters`` before creating ``Attributes``.
+
+        For example, renaming or removing a section of the parameter path.
+
+        """
+        pass
+
+    def _create_attributes(self):
+        """Create controller ``Attributes`` from ``OdinParameters``."""
+        for parameter in self._parameters:
             if "writeable" in parameter.metadata and parameter.metadata["writeable"]:
                 attr_class = AttrRW
             else:
@@ -97,10 +119,8 @@ class OdinController(SubController):
                 else None
             )
 
-            if len(parameter.uri) >= 3:
-                group = snake_to_pascal(
-                    f"{parameter.uri[0].capitalize()}_{parameter.uri[1].capitalize()}"
-                )
+            if len(parameter.path) >= 2:
+                group = snake_to_pascal(f"{parameter.path[0]}")
             else:
                 group = None
 
@@ -115,10 +135,8 @@ class OdinController(SubController):
             setattr(self, parameter.name.replace(".", ""), attr)
 
 
-class OdinTopController(Controller):
-    """
-    Connects all sub controllers on connect
-    """
+class OdinController(Controller):
+    """A root ``Controller`` for an Odin control server."""
 
     API_PREFIX = "api/0.1"
 
@@ -152,79 +170,142 @@ class OdinTopController(Controller):
             response = await self._connection.get(
                 f"{self.API_PREFIX}/{adapter}", headers=REQUEST_METADATA_HEADER
             )
-            assert isinstance(response, Mapping)
-            root_tree = {k: v for k, v in response.items() if not k.isdigit()}
-            indexed_trees = {
-                k: v
-                for k, v in response.items()
-                if k.isdigit() and isinstance(v, Mapping)
-            }
 
-            odin_controller = OdinController(
-                self._connection,
-                root_tree,
-                f"{self.API_PREFIX}/{adapter}",
-                f"{adapter.upper()}",
+            adapter_controller = self._create_adapter_controller(
+                self._connection, create_odin_parameters(response), adapter
             )
-            await odin_controller._create_parameter_tree()
-            self.register_sub_controller(odin_controller)
-
-            for idx, tree in indexed_trees.items():
-                odin_controller = OdinController(
-                    self._connection,
-                    tree,
-                    f"{self.API_PREFIX}/{adapter}/{idx}",
-                    f"{adapter.upper()}{idx}",
-                )
-                await odin_controller._create_parameter_tree()
-                self.register_sub_controller(odin_controller)
+            await adapter_controller.initialise()
+            self.register_sub_controller(adapter_controller)
 
         await self._connection.close()
+
+    def _create_adapter_controller(
+        self,
+        connection: HTTPConnection,
+        parameters: list[OdinParameter],
+        adapter: str,
+    ) -> OdinSubController:
+        """Create an ``OdinSubController`` for an adapter in an Odin control server."""
+
+        match adapter:
+            # TODO: May not be called "fp", it is configurable in the server
+            case "fp":
+                return OdinFPAdapterController(
+                    connection, parameters, f"{self.API_PREFIX}/fp", ["FP"]
+                )
+            case _:
+                return OdinSubController(
+                    connection,
+                    parameters,
+                    f"{self.API_PREFIX}/{adapter}",
+                    [f"{adapter.upper()}"],
+                )
 
     async def connect(self) -> None:
         self._connection.open()
 
 
-class FPOdinController(OdinController):
-    def __init__(
-        self,
-        connection: HTTPConnection,
-        param_tree: Mapping[str, Any],
-        api: str = "0.1",
-    ):
-        super().__init__(
-            connection,
-            param_tree,
-            f"api/{api}/fp",
-            "FP",
+class OdinFPAdapterController(OdinSubController):
+    async def initialise(self):
+        idx_parameters, self._parameters = partition(
+            self._parameters, lambda p: p.uri[0].isdigit()
         )
 
+        while idx_parameters:
+            idx = idx_parameters[0].uri[0]
+            fp_parameters, idx_parameters = partition(
+                idx_parameters, lambda p, idx=idx: p.uri[0] == idx
+            )
 
-class FROdinController(OdinController):
+            adapter_controller = OdinFPController(
+                self._connection,
+                fp_parameters,
+                f"{self._api_prefix}/{idx}",
+                [f"FP{idx}"],
+            )
+            await adapter_controller.initialise()
+            self.register_sub_controller(adapter_controller)
+
+
+class OdinFPController(OdinSubController):
+    async def initialise(self):
+        plugins_response = await self._connection.get(
+            f"{self._api_prefix}/status/plugins/names"
+        )
+        match plugins_response:
+            case {"names": [*plugin_list]}:
+                plugins = tuple(a for a in plugin_list if isinstance(a, str))
+                if len(plugins) != len(plugin_list):
+                    raise ValueError(f"Received invalid plugins list:\n{plugin_list}")
+            case _:
+                raise ValueError(
+                    f"Did not find valid plugins in response:\n{plugins_response}"
+                )
+
+        self._process_parameters()
+        await self._create_plugin_sub_controllers(plugins)
+        self._create_attributes()
+
+    def _process_parameters(self):
+        for parameter in self._parameters:
+            # Remove duplicate index from uri
+            parameter.uri = parameter.uri[1:]
+            # Remove redundant status/config from parameter path
+            parameter.set_path(parameter.uri[1:])
+
+    async def _create_plugin_sub_controllers(self, plugins: Sequence[str]):
+        for plugin in plugins:
+
+            def __parameter_in_plugin(
+                parameter: OdinParameter, plugin: str = plugin
+            ) -> bool:
+                return parameter.path[0] == plugin
+
+            plugin_parameters, self._parameters = partition(
+                self._parameters, __parameter_in_plugin
+            )
+            plugin_controller = OdinFPPluginController(
+                self._connection,
+                plugin_parameters,
+                f"{self._api_prefix}",
+                self.path + [plugin],
+            )
+            await plugin_controller.initialise()
+            self.register_sub_controller(plugin_controller)
+
+
+class OdinFPPluginController(OdinSubController):
+    def _process_parameters(self):
+        for parameter in self._parameters:
+            # Remove plugin name included in controller base path
+            parameter.set_path(parameter.path[1:])
+
+
+class FROdinController(OdinSubController):
     def __init__(
         self,
         connection: HTTPConnection,
-        param_tree: Mapping[str, Any],
+        parameters: list[OdinParameter],
         api: str = "0.1",
     ):
         super().__init__(
             connection,
-            param_tree,
+            parameters,
             f"api/{api}/fr",
-            "FR",
+            ["FR"],
         )
 
 
-class MLOdinController(OdinController):
+class MLOdinController(OdinSubController):
     def __init__(
         self,
         connection: HTTPConnection,
-        param_tree: Mapping[str, Any],
+        parameters: list[OdinParameter],
         api: str = "0.1",
     ):
         super().__init__(
             connection,
-            param_tree,
+            parameters,
             f"api/{api}/meta_listener",
-            "ML",
+            ["ML"],
         )

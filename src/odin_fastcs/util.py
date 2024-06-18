@@ -1,6 +1,6 @@
-from collections.abc import Iterator, Mapping
-from dataclasses import dataclass
-from typing import Any
+from collections.abc import Callable, Iterator, Mapping
+from dataclasses import dataclass, field
+from typing import Any, TypeVar
 
 
 def is_metadata_object(v: Any) -> bool:
@@ -14,10 +14,21 @@ class OdinParameter:
     metadata: dict[str, Any]
     """JSON response from GET of parameter."""
 
+    _path: list[str] = field(default_factory=list)
+
+    @property
+    def path(self) -> list[str]:
+        """Reduced path of parameter to override uri when constructing name."""
+        return self._path or self.uri
+
     @property
     def name(self) -> str:
         """Unique name of parameter."""
-        return "_".join(self.uri)
+        return "_".join(self.path)
+
+    def set_path(self, path: list[str]):
+        """Set reduced path of parameter to override uri when constructing name."""
+        self._path = path
 
 
 def create_odin_parameters(metadata: Mapping[str, Any]) -> list[OdinParameter]:
@@ -50,8 +61,7 @@ def _walk_odin_metadata(
 
     """
     for node_name, node_value in tree.items():
-        if node_name:
-            node_path = path + [node_name]
+        node_path = path + [node_name]
 
         if isinstance(node_value, dict) and not is_metadata_object(node_value):
             yield from _walk_odin_metadata(node_value, node_path)
@@ -63,7 +73,7 @@ def _walk_odin_metadata(
                 yield from _walk_odin_metadata(sub_node, sub_node_path)
         else:
             # Leaves
-            if is_metadata_object(node_value):
+            if isinstance(node_value, dict) and is_metadata_object(node_value):
                 yield (node_path, node_value)
             elif isinstance(node_value, list):
                 if "config" in node_path:
@@ -82,7 +92,7 @@ def _walk_odin_metadata(
                 yield (node_path, infer_metadata(node_value, node_path))
 
 
-def infer_metadata(parameter: int | float | bool | str, uri: list[str]):
+def infer_metadata(parameter: Any, uri: list[str]):
     """Create metadata for a parameter from its type and URI.
 
     Args:
@@ -95,3 +105,33 @@ def infer_metadata(parameter: int | float | bool | str, uri: list[str]):
         "type": type(parameter).__name__,
         "writeable": "config" in uri,
     }
+
+
+T = TypeVar("T")
+
+
+def partition(
+    elements: list[T], predicate: Callable[[T], bool]
+) -> tuple[list[T], list[T]]:
+    """Split a list of elements in two based on predicate.
+
+    If the predicate returns ``True``, the element will be placed in the truthy list,
+    if it does not, it will be placed in the falsy list.
+
+    Args:
+        elements: List of T
+        predicate: Predicate to filter the list with
+
+    Returns:
+        (truthy, falsy)
+
+    """
+    truthy: list[T] = []
+    falsy: list[T] = []
+    for parameter in elements:
+        if predicate(parameter):
+            truthy.append(parameter)
+        else:
+            falsy.append(parameter)
+
+    return truthy, falsy
