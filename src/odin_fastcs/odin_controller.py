@@ -226,6 +226,8 @@ class OdinFPAdapterController(OdinSubController):
             await adapter_controller.initialise()
             self.register_sub_controller(adapter_controller)
 
+        self._create_attributes()
+
 
 class OdinFPController(OdinSubController):
     async def initialise(self):
