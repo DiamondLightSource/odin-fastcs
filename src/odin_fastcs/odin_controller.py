@@ -226,6 +226,8 @@ class OdinFPAdapterController(OdinSubController):
             await adapter_controller.initialise()
             self.register_sub_controller(adapter_controller)
 
+        self._create_attributes()
+
 
 class OdinFPController(OdinSubController):
     async def initialise(self):
@@ -268,7 +270,7 @@ class OdinFPController(OdinSubController):
                 self._connection,
                 plugin_parameters,
                 f"{self._api_prefix}",
-                self.path + [plugin],
+                self.path + [plugin.upper()],
             )
             await plugin_controller.initialise()
             self.register_sub_controller(plugin_controller)
