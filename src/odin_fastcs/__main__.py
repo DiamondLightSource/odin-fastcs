@@ -39,11 +39,15 @@ def main(
     pass
 
 
+OdinIp = typer.Option("127.0.0.1", help="IP address of odin server")
+OdinPort = typer.Option(8888, help="Port of odin server")
+
+
 @app.command()
-def ioc(pv_prefix: str = typer.Argument()):
+def ioc(pv_prefix: str = typer.Argument(), ip: str = OdinIp, port: int = OdinPort):
     from fastcs.backends.epics.backend import EpicsBackend
 
-    controller = OdinController(IPConnectionSettings("127.0.0.1", 8888))
+    controller = OdinController(IPConnectionSettings(ip, port))
 
     backend = EpicsBackend(controller, pv_prefix)
     backend.create_gui(
@@ -55,8 +59,8 @@ def ioc(pv_prefix: str = typer.Argument()):
 
 
 @app.command()
-def asyncio():
-    controller = OdinController(IPConnectionSettings("127.0.0.1", 8888))
+def asyncio(ip: str = OdinIp, port: int = OdinPort):
+    controller = OdinController(IPConnectionSettings(ip, port))
 
     backend = AsyncioBackend(controller)
     backend.run()
