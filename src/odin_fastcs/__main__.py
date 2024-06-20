@@ -41,10 +41,18 @@ def main(
 
 
 @app.command()
-def ioc(pv_prefix: str = typer.Argument()):
+def ioc(
+    pv_prefix: str = typer.Argument(),
+    url: Optional[str] = typer.Option(
+        "127.0.0.1",
+        "--url",
+        is_eager=True,
+        help="Define server url",
+    ),
+):
     from fastcs.backends.epics.backend import EpicsBackend
 
-    mapping = get_controller_mapping()
+    mapping = get_controller_mapping(url)
 
     backend = EpicsBackend(mapping, pv_prefix)
     backend.create_gui(
@@ -54,15 +62,22 @@ def ioc(pv_prefix: str = typer.Argument()):
 
 
 @app.command()
-def asyncio():
-    mapping = get_controller_mapping()
+def asyncio(
+    url: Optional[str] = typer.Option(
+        "127.0.0.1",
+        "--url",
+        is_eager=True,
+        help="Define server url",
+    )
+):
+    mapping = get_controller_mapping(url)
 
     backend = AsyncioBackend(mapping)
     backend.run_interactive_session()
 
 
-def get_controller_mapping() -> Mapping:
-    controller = OdinController(IPConnectionSettings("127.0.0.1", 8888))
+def get_controller_mapping(url) -> Mapping:
+    controller = OdinController(IPConnectionSettings(url, 8888))
 
     return Mapping(controller)
 
