@@ -48,7 +48,9 @@ def ioc(pv_prefix: str = typer.Argument()):
 
     backend = EpicsBackend(mapping, pv_prefix)
     backend.create_gui(
-        options=EpicsGUIOptions(output_path=Path.cwd() / "odin.bob", title="Odin")
+        options=EpicsGUIOptions(
+            output_path=Path.cwd() / "odin.bob", title=f"Odin - {pv_prefix}"
+        )
     )
     backend.get_ioc().run()
 
