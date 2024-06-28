@@ -21,7 +21,7 @@ def test_create_attributes():
         OdinParameter(uri=["write_bool"], metadata={"type": "bool", "writeable": True}),
         OdinParameter(uri=["group", "float"], metadata={"type": "float"}),
     ]
-    controller = OdinSubController(HTTPConnection("", 0), parameters, "api/0.1", [])
+    controller = OdinSubController(HTTPConnection("", 0), parameters, "api/0.1")
 
     controller._create_attributes()
 
@@ -42,7 +42,7 @@ def test_fp_process_parameters():
         OdinParameter(["0", "config", "hdf", "frames"], metadata={}),
     ]
 
-    fpc = OdinFPController(HTTPConnection("", 0), parameters, "api/0.1", ["FP"])
+    fpc = OdinFPController(HTTPConnection("", 0), parameters, "api/0.1")
 
     fpc._process_parameters()
     assert fpc._parameters == [
@@ -72,7 +72,7 @@ async def test_fp_create_plugin_sub_controllers():
         ),
     ]
 
-    fpc = OdinFPController(HTTPConnection("", 0), parameters, "api/0.1", ["FP"])
+    fpc = OdinFPController(HTTPConnection("", 0), parameters, "api/0.1")
 
     await fpc._create_plugin_sub_controllers(["hdf"])
 
@@ -85,8 +85,8 @@ async def test_fp_create_plugin_sub_controllers():
         )
     ]
     match fpc.get_sub_controllers():
-        case [
-            OdinFPPluginController(
+        case {
+            "HDF": OdinFPPluginController(
                 _parameters=[
                     OdinParameter(
                         uri=["status", "hdf", "frames_written"],
@@ -94,7 +94,7 @@ async def test_fp_create_plugin_sub_controllers():
                     )
                 ]
             )
-        ]:
+        }:
             pass
         case _:
             pytest.fail("Sub controllers not as expected")

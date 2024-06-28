@@ -12,7 +12,7 @@ classifiers = [
 description = "FastCS support for the Odin detector software framework"
 dependencies = [
     "aiohttp",
-    "fastcs~=0.4.2",
+    "fastcs~=0.5.0",
 ]
 dynamic = ["version"]
 license.file = "LICENSE"

@@ -1,12 +1,12 @@
 import asyncio
 import logging
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from fastcs.attributes import AttrR, AttrRW, AttrW, Handler
+from fastcs.attributes import AttrR, AttrRW, AttrW, Handler, Sender
 from fastcs.connections.ip_connection import IPConnectionSettings
-from fastcs.controller import Controller, SubController
+from fastcs.controller import BaseController, Controller, SubController
 from fastcs.datatypes import Bool, Float, Int, String
 from fastcs.util import snake_to_pascal
 
@@ -21,6 +21,14 @@ types = {"float": Float(), "int": Int(), "bool": Bool(), "str": String()}
 
 REQUEST_METADATA_HEADER = {"Accept": "application/json;metadata=true"}
 IGNORED_ADAPTERS = ["od_fps", "od_frs", "od_mls"]
+UNIQUE_FP_CONFIG = [
+    "rank",
+    "number",
+    "ctrl_endpoint",
+    "meta_endpoint",
+    "fr_ready_cnxn",
+    "fr_release_cnxn",
+]
 
 
 class AdapterResponseError(Exception): ...
@@ -65,24 +73,36 @@ class ParamTreeHandler(Handler):
             logging.error("Update loop failed for %s:\n%s", self.path, e)
 
 
+@dataclass
+class ConfigFanSender(Sender):
+    """Handler to fan out puts to underlying Attributes."""
+
+    attributes: list[AttrW]
+
+    async def put(self, _controller: "OdinSubController", attr: AttrW, value: Any):
+        for attribute in self.attributes:
+            await attribute.process(value)
+
+        if isinstance(attr, AttrRW):
+            await attr.set(value)
+
+
 class OdinSubController(SubController):
     def __init__(
         self,
         connection: HTTPConnection,
         parameters: list[OdinParameter],
         api_prefix: str,
-        path: list[str],
     ):
         """A ``SubController`` for a subsystem in an Odin control server.
 
         Args:
             connection: HTTP connection to communicate with Odin server
-            parameter_tree: The parameter tree from the Odin server for this subsytem
+            parameter_tree: The parameter tree from the Odin server for this subsystem
             api_prefix: The base URL of this subsystem in the Odin server API
-            path: ``SubController`` path
 
         """
-        super().__init__(path)
+        super().__init__()
 
         self._connection = connection
         self._parameters = parameters
@@ -174,8 +194,8 @@ class OdinController(Controller):
             adapter_controller = self._create_adapter_controller(
                 self._connection, create_odin_parameters(response), adapter
             )
+            self.register_sub_controller(adapter.upper(), adapter_controller)
             await adapter_controller.initialise()
-            self.register_sub_controller(adapter_controller)
 
         await self._connection.close()
 
@@ -191,14 +211,13 @@ class OdinController(Controller):
             # TODO: May not be called "fp", it is configurable in the server
             case "fp":
                 return OdinFPAdapterController(
-                    connection, parameters, f"{self.API_PREFIX}/fp", ["FP"]
+                    connection, parameters, f"{self.API_PREFIX}/fp"
                 )
             case _:
                 return OdinSubController(
                     connection,
                     parameters,
                     f"{self.API_PREFIX}/{adapter}",
-                    [f"{adapter.upper()}"],
                 )
 
     async def connect(self) -> None:
@@ -221,12 +240,55 @@ class OdinFPAdapterController(OdinSubController):
                 self._connection,
                 fp_parameters,
                 f"{self._api_prefix}/{idx}",
-                [f"FP{idx}"],
             )
+            self.register_sub_controller(f"FP{idx}", adapter_controller)
             await adapter_controller.initialise()
-            self.register_sub_controller(adapter_controller)
 
         self._create_attributes()
+        self._create_config_fan_attributes()
+
+    def _create_config_fan_attributes(self):
+        """Search for config attributes in sub controllers to create fan out PVs."""
+        parameter_attribute_map: dict[str, tuple[OdinParameter, list[AttrW]]] = {}
+        for sub_controller in get_all_sub_controllers(self):
+            for parameter in sub_controller._parameters:
+                mode, key = parameter.uri[0], parameter.uri[-1]
+                if mode == "config" and key not in UNIQUE_FP_CONFIG:
+                    try:
+                        attr = getattr(sub_controller, parameter.name)
+                    except AttributeError:
+                        print(
+                            f"Controller has parameter {parameter}, "
+                            f"but no corresponding attribute {parameter.name}"
+                        )
+
+                    if parameter.name not in parameter_attribute_map:
+                        parameter_attribute_map[parameter.name] = (parameter, [attr])
+                    else:
+                        parameter_attribute_map[parameter.name][1].append(attr)
+
+        for parameter, sub_attributes in parameter_attribute_map.values():
+            setattr(
+                self,
+                parameter.name,
+                sub_attributes[0].__class__(
+                    sub_attributes[0]._datatype,
+                    group=sub_attributes[0].group,
+                    handler=ConfigFanSender(sub_attributes),
+                ),
+            )
+
+
+def get_all_sub_controllers(
+    controller: "OdinSubController",
+) -> list["OdinSubController"]:
+    return list(_walk_sub_controllers(controller))
+
+
+def _walk_sub_controllers(controller: BaseController) -> Iterable[SubController]:
+    for sub_controller in controller.get_sub_controllers().values():
+        yield sub_controller
+        yield from _walk_sub_controllers(sub_controller)
 
 
 class OdinFPController(OdinSubController):
@@ -270,10 +332,9 @@ class OdinFPController(OdinSubController):
                 self._connection,
                 plugin_parameters,
                 f"{self._api_prefix}",
-                self.path + [plugin.upper()],
             )
             await plugin_controller.initialise()
-            self.register_sub_controller(plugin_controller)
+            self.register_sub_controller(plugin.upper(), plugin_controller)
 
 
 class OdinFPPluginController(OdinSubController):
@@ -294,7 +355,6 @@ class FROdinController(OdinSubController):
             connection,
             parameters,
             f"api/{api}/fr",
-            ["FR"],
         )
 
 
@@ -309,5 +369,4 @@ class MLOdinController(OdinSubController):
             connection,
             parameters,
             f"api/{api}/meta_listener",
-            ["ML"],
         )
