@@ -1,10 +1,11 @@
 import asyncio
 import logging
-from collections.abc import Iterable, Sequence
+import re
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TypeVar
 
-from fastcs.attributes import AttrR, AttrRW, AttrW, Handler, Sender
+from fastcs.attributes import AttrR, AttrRW, AttrW, Handler, Sender, Updater
 from fastcs.connections.ip_connection import IPConnectionSettings
 from fastcs.controller import BaseController, Controller, SubController
 from fastcs.datatypes import Bool, Float, Int, String
@@ -52,7 +53,7 @@ class ParamTreeHandler(Handler):
                 case {"error": error}:
                     raise AdapterResponseError(error)
         except Exception as e:
-            logging.error("Update loop failed for %s:\n%s", self.path, e)
+            logging.error("Put %s = %s failed:\n%s", self.path, value, e)
 
     async def update(
         self,
@@ -73,6 +74,25 @@ class ParamTreeHandler(Handler):
             logging.error("Update loop failed for %s:\n%s", self.path, e)
 
 
+T = TypeVar("T")
+
+
+@dataclass
+class StatusSummaryUpdater(Updater):
+    path_filter: list[str | re.Pattern]
+    parameter: str
+    accumulator: Callable[[Iterable[T]], T]
+    update_period: float = 0.2
+
+    async def update(self, controller: "OdinSubController", attr: AttrR):
+        values = []
+        for sub_controller in filter_sub_controllers(controller, self.path_filter):
+            sub_attribute: AttrR = getattr(sub_controller, self.parameter)
+            values.append(sub_attribute.get())
+
+        await attr.set(self.accumulator(values))
+
+
 @dataclass
 class ConfigFanSender(Sender):
     """Handler to fan out puts to underlying Attributes."""
@@ -85,6 +105,39 @@ class ConfigFanSender(Sender):
 
         if isinstance(attr, AttrRW):
             await attr.set(value)
+
+
+def filter_sub_controllers(
+    controller: BaseController, path_filter: Sequence[str | tuple[str] | re.Pattern]
+) -> Iterable[SubController]:
+    sub_controller_map = controller.get_sub_controllers()
+
+    if len(path_filter) == 1:
+        yield sub_controller_map[path_filter[0]]
+        return
+
+    step = path_filter[0]
+    match step:
+        case str() as key:
+            if key not in sub_controller_map:
+                raise ValueError(f"SubController {key} not found in {controller}")
+
+            sub_controllers = (sub_controller_map[key],)
+        case tuple() as keys:
+            for key in keys:
+                if key not in sub_controller_map:
+                    raise ValueError(f"SubController {key} not found in {controller}")
+
+            sub_controllers = tuple(sub_controller_map[k] for k in keys)
+        case pattern:
+            sub_controllers = tuple(
+                sub_controller_map[k]
+                for k in sub_controller_map.keys()
+                if pattern.match(k)
+            )
+
+    for sub_controller in sub_controllers:
+        yield from filter_sub_controllers(sub_controller, path_filter[1:])
 
 
 class OdinSubController(SubController):
@@ -225,6 +278,15 @@ class OdinController(Controller):
 
 
 class OdinFPAdapterController(OdinSubController):
+    frames_written: AttrR = AttrR(
+        Int(),
+        handler=StatusSummaryUpdater([re.compile("FP*"), "HDF"], "frames_written", sum),
+    )
+    writing: AttrR = AttrR(
+        Bool(),
+        handler=StatusSummaryUpdater([re.compile("FP*"), "HDF"], "writing", any),
+    )
+
     async def initialise(self):
         idx_parameters, self._parameters = partition(
             self._parameters, lambda p: p.uri[0].isdigit()
@@ -333,8 +395,8 @@ class OdinFPController(OdinSubController):
                 plugin_parameters,
                 f"{self._api_prefix}",
             )
-            await plugin_controller.initialise()
             self.register_sub_controller(plugin.upper(), plugin_controller)
+            await plugin_controller.initialise()
 
 
 class OdinFPPluginController(OdinSubController):
