@@ -21,7 +21,6 @@ from odin_fastcs.util import (
 types = {"float": Float(), "int": Int(), "bool": Bool(), "str": String()}
 
 REQUEST_METADATA_HEADER = {"Accept": "application/json;metadata=true"}
-IGNORED_ADAPTERS = ["od_fps", "od_frs", "od_mls"]
 UNIQUE_FP_CONFIG = [
     "rank",
     "number",
@@ -235,9 +234,6 @@ class OdinController(Controller):
                 )
 
         for adapter in adapters:
-            if adapter in IGNORED_ADAPTERS:
-                continue
-
             # Get full parameter tree and split into parameters at the root and under
             # an index where there are N identical trees for each underlying process
             response = await self._connection.get(

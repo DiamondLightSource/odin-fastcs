@@ -5,7 +5,7 @@ from typing import Annotated
 import requests
 import typer
 
-from odin_fastcs.odin_controller import IGNORED_ADAPTERS, REQUEST_METADATA_HEADER
+from odin_fastcs.odin_controller import REQUEST_METADATA_HEADER
 
 HERE = Path(__file__).parent
 
@@ -28,9 +28,6 @@ def main(
         adapters = requests.get(f"{url}/api/0.1/adapters").json()["adapters"]
 
     for adapter in adapters:
-        if adapter in IGNORED_ADAPTERS:
-            continue
-
         try:
             adapter_tree = requests.get(
                 f"{url}/api/0.1/{adapter}", headers=REQUEST_METADATA_HEADER
