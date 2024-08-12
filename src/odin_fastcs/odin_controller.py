@@ -1,4 +1,3 @@
-import asyncio
 import logging
 import re
 from collections.abc import Callable, Iterable, Sequence
@@ -216,8 +215,6 @@ class OdinController(Controller):
         super().__init__()
 
         self._connection = HTTPConnection(settings.ip, settings.port)
-
-        asyncio.run(self.initialise())
 
     async def initialise(self) -> None:
         self._connection.open()
