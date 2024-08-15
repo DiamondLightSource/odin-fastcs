@@ -259,6 +259,14 @@ class OdinController(Controller):
                 return OdinFPAdapterController(
                     connection, parameters, f"{self.API_PREFIX}/fp"
                 )
+            case "mw":
+                return MetaWriterController(
+                    connection, parameters, f"{self.API_PREFIX}/mw"
+                )
+            case "ef":
+                return EigerFanController(
+                    connection, parameters, f"{self.API_PREFIX}/ef"
+                )
             case _:
                 return OdinSubController(
                     connection,
@@ -413,15 +421,23 @@ class FROdinController(OdinSubController):
         )
 
 
-class MLOdinController(OdinSubController):
-    def __init__(
-        self,
-        connection: HTTPConnection,
-        parameters: list[OdinParameter],
-        api: str = "0.1",
-    ):
-        super().__init__(
-            connection,
-            parameters,
-            f"api/{api}/meta_listener",
-        )
+class MetaWriterController(OdinSubController):
+    acquisition_id: AttrRW = AttrRW(
+        String(), handler=ParamTreeHandler("api/0.1/mw/config/acquisition_id")
+    )
+    directory: AttrRW = AttrRW(
+        String(), handler=ParamTreeHandler("api/0.1/mw/config/directory")
+    )
+    file_prefix: AttrRW = AttrRW(
+        String(), handler=ParamTreeHandler("api/0.1/mw/config/file_prefix")
+    )
+    stop: AttrW = AttrW(Bool(), handler=ParamTreeHandler("api/0.1/mw/config/stop"))
+    writing: AttrR = AttrR(
+        Bool(), handler=ParamTreeHandler("api/0.1/ml/status/writing")
+    )
+
+
+class EigerFanController(OdinSubController):
+    acquisition_id: AttrRW = AttrRW(
+        String(), handler=ParamTreeHandler("api/0.1/ef/0/config/acqid")
+    )
