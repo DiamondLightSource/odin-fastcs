@@ -63,10 +63,10 @@ class ParamTreeHandler(Handler):
 
             # TODO: This would be nicer if the key was 'value' so we could match
             parameter = self.path.split("/")[-1]
-            value = response.get(parameter, None)
-            if value is None:
+            if parameter not in response:
                 raise ValueError(f"{parameter} not found in response:\n{response}")
 
+            value = response.get(parameter)
             await attr.set(value)
         except Exception as e:
             logging.error("Update loop failed for %s:\n%s", self.path, e)
