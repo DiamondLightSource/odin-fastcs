@@ -17,14 +17,6 @@ from odin_fastcs.util import (
 types = {"float": Float(), "int": Int(), "bool": Bool(), "str": String()}
 
 REQUEST_METADATA_HEADER = {"Accept": "application/json;metadata=true"}
-UNIQUE_FP_CONFIG = [
-    "rank",
-    "number",
-    "ctrl_endpoint",
-    "meta_endpoint",
-    "fr_ready_cnxn",
-    "fr_release_cnxn",
-]
 
 
 class AdapterResponseError(Exception): ...
@@ -74,15 +66,28 @@ T = TypeVar("T")
 
 @dataclass
 class StatusSummaryUpdater(Updater):
-    path_filter: list[str | re.Pattern]
-    parameter: str
+    """Updater to accumulate underlying attributes into a high-level summary.
+
+    Args:
+        path_filter: A list of filters to apply to the sub controller hierarchy. This is
+        used to match one or more sub controller paths under the parent controller. Each
+        element can be a string or tuple of string for one or more exact matches, or a
+        regular expression to match on.
+        attribute_name: The name of the attribute to get from the sub controllers
+        matched by `path_filter`.
+        accumulator: A function that takes a sequence of values from each matched
+        attribute and returns a summary value.
+    """
+
+    path_filter: list[str | tuple[str] | re.Pattern]
+    attribute_name: str
     accumulator: Callable[[Iterable[T]], T]
     update_period: float = 0.2
 
     async def update(self, controller: "OdinAdapterController", attr: AttrR):
         values = []
-        for sub_controller in filter_sub_controllers(controller, self.path_filter):
-            sub_attribute: AttrR = getattr(sub_controller, self.parameter)
+        for sub_controller in _filter_sub_controllers(controller, self.path_filter):
+            sub_attribute: AttrR = getattr(sub_controller, self.attribute_name)
             values.append(sub_attribute.get())
 
         await attr.set(self.accumulator(values))
@@ -90,7 +95,11 @@ class StatusSummaryUpdater(Updater):
 
 @dataclass
 class ConfigFanSender(Sender):
-    """Handler to fan out puts to underlying Attributes."""
+    """Handler to fan out puts to underlying Attributes.
+
+    Args:
+        attributes: A list of attributes to fan out to.
+    """
 
     attributes: list[AttrW]
 
@@ -102,7 +111,7 @@ class ConfigFanSender(Sender):
             await attr.set(value)
 
 
-def filter_sub_controllers(
+def _filter_sub_controllers(
     controller: BaseController, path_filter: Sequence[str | tuple[str] | re.Pattern]
 ) -> Iterable[SubController]:
     sub_controller_map = controller.get_sub_controllers()
@@ -132,11 +141,17 @@ def filter_sub_controllers(
             )
 
     for sub_controller in sub_controllers:
-        yield from filter_sub_controllers(sub_controller, path_filter[1:])
+        yield from _filter_sub_controllers(sub_controller, path_filter[1:])
 
 
 class OdinAdapterController(SubController):
-    """Base class for exposing parameters from an odin control adapter"""
+    """Base class for exposing parameters from an odin control adapter.
+
+    Introspection should work for any odin adapter that implements its API using
+    ParameterTree. To implement logic for a specific adapter, make a subclass and
+    implement `_process_parameters` to modify the parameters before creating attributes
+    and/or statically define additional attributes.
+    """
 
     def __init__(
         self,
@@ -147,9 +162,8 @@ class OdinAdapterController(SubController):
         """
         Args:
             connection: HTTP connection to communicate with odin server
-            parameter_tree: The parameter tree from the odin server for this subsystem
-            api_prefix: The base URL of this subsystem in the odin server API
-
+            parameters: The parameters in the adapter
+            api_prefix: The base URL of this adapter in the odin server API
         """
         super().__init__()
 

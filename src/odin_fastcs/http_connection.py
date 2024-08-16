@@ -23,7 +23,7 @@ class HTTPConnection:
         return f"http://{self._ip}:{self._port}/{uri}"
 
     def open(self):
-        """Create the underlying aiohttp ClienSession.
+        """Create the underlying aiohttp ClientSession.
 
         When called the session will be created in the context of the current running
         asyncio loop.
