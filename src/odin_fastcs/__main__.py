@@ -5,7 +5,6 @@ import typer
 from fastcs.backends.asyncio_backend import AsyncioBackend
 from fastcs.backends.epics.gui import EpicsGUIOptions
 from fastcs.connections.ip_connection import IPConnectionSettings
-from fastcs.mapping import Mapping
 
 from odin_fastcs.odin_controller import (
     OdinController,
@@ -44,27 +43,23 @@ def main(
 def ioc(pv_prefix: str = typer.Argument()):
     from fastcs.backends.epics.backend import EpicsBackend
 
-    mapping = get_controller_mapping()
+    controller = OdinController(IPConnectionSettings("127.0.0.1", 8888))
 
-    backend = EpicsBackend(mapping, pv_prefix)
+    backend = EpicsBackend(controller, pv_prefix)
     backend.create_gui(
-        options=EpicsGUIOptions(output_path=Path.cwd() / "odin.bob", title="Odin")
+        options=EpicsGUIOptions(
+            output_path=Path.cwd() / "odin.bob", title=f"Odin - {pv_prefix}"
+        )
     )
-    backend.get_ioc().run()
+    backend.run()
 
 
 @app.command()
 def asyncio():
-    mapping = get_controller_mapping()
-
-    backend = AsyncioBackend(mapping)
-    backend.run_interactive_session()
-
-
-def get_controller_mapping() -> Mapping:
     controller = OdinController(IPConnectionSettings("127.0.0.1", 8888))
 
-    return Mapping(controller)
+    backend = AsyncioBackend(controller)
+    backend.run()
 
 
 # test with: python -m odin_fastcs

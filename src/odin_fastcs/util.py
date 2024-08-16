@@ -35,7 +35,7 @@ def create_odin_parameters(metadata: Mapping[str, Any]) -> list[OdinParameter]:
     """Walk metadata and create parameters for the leaves, flattening path with '/'s.
 
     Args:
-        metadata: JSON metadata from Odin server
+        metadata: JSON metadata from odin server
 
     Returns":
         List of ``OdinParameter``
