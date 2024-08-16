@@ -1,14 +1,21 @@
+import re
 from pathlib import Path
 
 import pytest
 from fastcs.attributes import AttrR, AttrRW
 from fastcs.datatypes import Bool, Float, Int
+from pytest_mock import MockerFixture
 
 from odin_fastcs.frame_processor import (
     FrameProcessorController,
     FrameProcessorPluginController,
 )
 from odin_fastcs.http_connection import HTTPConnection
+from odin_fastcs.odin_adapter_controller import (
+    ConfigFanSender,
+    ParamTreeHandler,
+    StatusSummaryUpdater,
+)
 from odin_fastcs.odin_controller import OdinAdapterController
 from odin_fastcs.util import OdinParameter
 
@@ -98,3 +105,111 @@ async def test_fp_create_plugin_sub_controllers():
             pass
         case _:
             pytest.fail("Sub controllers not as expected")
+
+
+@pytest.mark.asyncio
+async def test_param_tree_handler_update(mocker: MockerFixture):
+    controller = mocker.AsyncMock()
+    attr = mocker.MagicMock()
+
+    handler = ParamTreeHandler("hdf/frames_written")
+
+    controller._connection.get.return_value = {"frames_written": 20}
+    await handler.update(controller, attr)
+    attr.set.assert_called_once_with(20)
+
+
+@pytest.mark.asyncio
+async def test_param_tree_handler_update_exception(mocker: MockerFixture):
+    controller = mocker.AsyncMock()
+    attr = mocker.MagicMock()
+
+    handler = ParamTreeHandler("hdf/frames_written")
+
+    controller._connection.get.return_value = {"frames_wroted": 20}
+    error_mock = mocker.patch("odin_fastcs.odin_adapter_controller.logging.error")
+    await handler.update(controller, attr)
+    error_mock.assert_called_once_with(
+        "Update loop failed for %s:\n%s", "hdf/frames_written", mocker.ANY
+    )
+
+
+@pytest.mark.asyncio
+async def test_param_tree_handler_put(mocker: MockerFixture):
+    controller = mocker.MagicMock()
+    attr = mocker.MagicMock()
+
+    handler = ParamTreeHandler("hdf/frames")
+
+    # Test put
+    await handler.put(controller, attr, 10)
+    controller._connection.put.assert_called_once_with("hdf/frames", 10)
+
+
+@pytest.mark.asyncio
+async def test_param_tree_handler_put_exception(mocker: MockerFixture):
+    controller = mocker.AsyncMock()
+    attr = mocker.MagicMock()
+
+    handler = ParamTreeHandler("hdf/frames")
+
+    controller._connection.put.return_value = {"error": "No, you can't do that"}
+    error_mock = mocker.patch("odin_fastcs.odin_adapter_controller.logging.error")
+    await handler.put(controller, attr, -1)
+    error_mock.assert_called_once_with(
+        "Put %s = %s failed:\n%s", "hdf/frames", -1, mocker.ANY
+    )
+
+
+@pytest.mark.asyncio
+async def test_status_summary_updater(mocker: MockerFixture):
+    controller = mocker.MagicMock()
+    od_controller = mocker.MagicMock()
+    fp_controller = mocker.MagicMock()
+    fpx_controller = mocker.MagicMock()
+    hdf_controller = mocker.MagicMock()
+    attr = mocker.AsyncMock()
+
+    controller.get_sub_controllers.return_value = {"OD": od_controller}
+    od_controller.get_sub_controllers.return_value = {"FP": fp_controller}
+    fp_controller.get_sub_controllers.return_value = {
+        "FP0": fpx_controller,
+        "FP1": fpx_controller,
+    }
+    fpx_controller.get_sub_controllers.return_value = {"HDF": hdf_controller}
+
+    hdf_controller.frames_written.get.return_value = 50
+
+    handler = StatusSummaryUpdater(
+        ["OD", ("FP",), re.compile("FP*"), "HDF"], "frames_written", sum
+    )
+    hdf_controller.frames_written.get.return_value = 50
+    await handler.update(controller, attr)
+    attr.set.assert_called_once_with(100)
+
+    handler = StatusSummaryUpdater(
+        ["OD", ("FP",), re.compile("FP*"), "HDF"], "writing", any
+    )
+
+    hdf_controller.writing.get.side_effect = [True, False]
+    await handler.update(controller, attr)
+    attr.set.assert_called_with(True)
+
+    hdf_controller.writing.get.side_effect = [False, False]
+    await handler.update(controller, attr)
+    attr.set.assert_called_with(False)
+
+
+@pytest.mark.asyncio
+async def test_config_fan_sender(mocker: MockerFixture):
+    controller = mocker.MagicMock()
+    attr = mocker.MagicMock(AttrRW)
+    attr1 = mocker.AsyncMock()
+    attr2 = mocker.AsyncMock()
+
+    handler = ConfigFanSender([attr1, attr2])
+
+    await handler.put(controller, attr, 10)
+    attr1.process.assert_called_once_with(10)
+    attr2.process.assert_called_once_with(10)
+    attr.set.assert_called_once_with(10)
