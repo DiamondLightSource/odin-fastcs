@@ -18,5 +18,5 @@ class MetaWriterAdapterController(OdinAdapterController):
     )
     stop: AttrW = AttrW(Bool(), handler=ParamTreeHandler("api/0.1/mw/config/stop"))
     writing: AttrR = AttrR(
-        Bool(), handler=ParamTreeHandler("api/0.1/ml/status/writing")
+        Bool(), handler=ParamTreeHandler("api/0.1/mw/status/writing")
     )
