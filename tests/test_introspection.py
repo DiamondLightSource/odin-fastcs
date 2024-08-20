@@ -15,7 +15,7 @@ def test_one_node():
         response = json.loads(f.read())
 
     parameters = create_odin_parameters(response)
-    assert len(parameters) == 96
+    assert len(parameters) == 97
 
 
 def test_two_node():
@@ -23,7 +23,7 @@ def test_two_node():
         response = json.loads(f.read())
 
     parameters = create_odin_parameters(response)
-    assert len(parameters) == 188
+    assert len(parameters) == 190
 
 
 @pytest.mark.asyncio
