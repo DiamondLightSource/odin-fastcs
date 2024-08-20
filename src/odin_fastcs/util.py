@@ -63,10 +63,13 @@ def _walk_odin_metadata(
     for node_name, node_value in tree.items():
         node_path = path + [node_name]
 
+        # Branches - dict or list[dict] to recurse through
         if isinstance(node_value, dict) and not is_metadata_object(node_value):
             yield from _walk_odin_metadata(node_value, node_path)
-        elif isinstance(node_value, list) and all(
-            isinstance(m, dict) for m in node_value
+        elif (
+            isinstance(node_value, list)
+            and node_value  # Exclude parameters with an empty list as a value
+            and all(isinstance(m, dict) for m in node_value)
         ):
             for idx, sub_node in enumerate(node_value):
                 sub_node_path = node_path + [str(idx)]
