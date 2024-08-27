@@ -10,9 +10,7 @@ from fastcs.datatypes import Bool, Float, Int, String
 from fastcs.util import snake_to_pascal
 
 from odin_fastcs.http_connection import HTTPConnection
-from odin_fastcs.util import (
-    OdinParameter,
-)
+from odin_fastcs.util import OdinParameter
 
 types = {"float": Float(), "int": Int(), "bool": Bool(), "str": String()}
 

@@ -6,9 +6,7 @@ from fastcs.backends.asyncio_backend import AsyncioBackend
 from fastcs.backends.epics.gui import EpicsGUIOptions
 from fastcs.connections.ip_connection import IPConnectionSettings
 
-from odin_fastcs.odin_controller import (
-    OdinController,
-)
+from odin_fastcs.odin_controller import OdinController
 
 from . import __version__
 

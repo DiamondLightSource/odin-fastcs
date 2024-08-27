@@ -1,0 +1,154 @@
+{
+    "api": {
+        "value": 0.1,
+        "writeable": false,
+        "type": "float"
+    },
+    "module": {
+        "value": "OdinDataAdapter",
+        "writeable": false,
+        "type": "str"
+    },
+    "endpoints": [
+        {
+            "ip_address": {
+                "value": "127.0.0.1",
+                "writeable": false,
+                "type": "str"
+            },
+            "port": {
+                "value": 10000,
+                "writeable": false,
+                "type": "int"
+            }
+        },
+        {
+            "ip_address": {
+                "value": "127.0.0.1",
+                "writeable": false,
+                "type": "str"
+            },
+            "port": {
+                "value": 10010,
+                "writeable": false,
+                "type": "int"
+            }
+        }
+    ],
+    "count": {
+        "value": 2,
+        "writeable": false,
+        "type": "int"
+    },
+    "update_interval": {
+        "value": 0.2,
+        "writeable": false,
+        "type": "float"
+    },
+    "0": {
+        "status": {
+            "status": {
+                "ipc_configured": true,
+                "decoder_configured": true,
+                "buffer_manager_configured": true,
+                "rx_thread_configured": true,
+                "configuration_complete": true
+            },
+            "decoder": {
+                "name": "DummyUDPFrameDecoder",
+                "status_get_count": 7,
+                "packets_received": 0,
+                "packets_lost": 0,
+                "packets_dropped": 0
+            },
+            "buffers": {
+                "total": 292,
+                "empty": 292,
+                "mapped": 0
+            },
+            "frames": {
+                "timedout": 0,
+                "received": 0,
+                "released": 0,
+                "dropped": 0
+            },
+            "timestamp": "2024-08-29T13:56:17.796578",
+            "error": [],
+            "connected": true
+        },
+        "config": {
+            "ctrl_endpoint": "tcp://0.0.0.0:10000",
+            "rx_endpoint": "inproc://rx_channel",
+            "frame_ready_endpoint": "tcp://127.0.0.1:10001",
+            "frame_release_endpoint": "tcp://127.0.0.1:10002",
+            "decoder_path": "/scratch/hqv85942/scratchprojects/fast2/odin-data/prefix//lib",
+            "decoder_type": "DummyUDP",
+            "decoder_config": {
+                "enable_packet_logging": false,
+                "frame_timeout_ms": 1000,
+                "udp_packets_per_frame": 359,
+                "udp_packet_size": 8000
+            },
+            "shared_buffer_name": "OdinDataBuffer",
+            "max_buffer_mem": 840000000,
+            "rx_type": "udp",
+            "rx_address": "0.0.0.0",
+            "rx_ports": "61649",
+            "rx_recv_buffer_size": 30000000,
+            "frame_count": 1953718630
+        }
+    },
+    "1": {
+        "status": {
+            "status": {
+                "ipc_configured": true,
+                "decoder_configured": true,
+                "buffer_manager_configured": true,
+                "rx_thread_configured": true,
+                "configuration_complete": true
+            },
+            "decoder": {
+                "name": "DummyUDPFrameDecoder",
+                "status_get_count": 7,
+                "packets_received": 0,
+                "packets_lost": 0,
+                "packets_dropped": 0
+            },
+            "buffers": {
+                "total": 292,
+                "empty": 292,
+                "mapped": 0
+            },
+            "frames": {
+                "timedout": 0,
+                "received": 0,
+                "released": 0,
+                "dropped": 0
+            },
+            "timestamp": "2024-08-29T13:56:17.817041",
+            "error": [],
+            "connected": true
+        },
+        "config": {
+            "ctrl_endpoint": "tcp://0.0.0.0:10010",
+            "rx_endpoint": "inproc://rx_channel",
+            "frame_ready_endpoint": "tcp://127.0.0.1:10011",
+            "frame_release_endpoint": "tcp://127.0.0.1:10012",
+            "decoder_path": "/scratch/hqv85942/scratchprojects/fast2/odin-data/prefix//lib",
+            "decoder_type": "DummyUDP",
+            "decoder_config": {
+                "enable_packet_logging": false,
+                "frame_timeout_ms": 1000,
+                "udp_packets_per_frame": 359,
+                "udp_packet_size": 8000
+            },
+            "shared_buffer_name": "OdinDataBuffer",
+            "max_buffer_mem": 840000000,
+            "rx_type": "udp",
+            "rx_address": "0.0.0.0",
+            "rx_ports": "61650",
+            "rx_recv_buffer_size": 30000000,
+            "frame_count": 1953718630
+        }
+    }
+}
