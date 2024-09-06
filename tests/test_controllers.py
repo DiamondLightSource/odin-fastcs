@@ -6,10 +6,6 @@ from fastcs.attributes import AttrR, AttrRW
 from fastcs.datatypes import Bool, Float, Int
 from pytest_mock import MockerFixture
 
-from odin_fastcs.frame_processor import (
-    FrameProcessorController,
-    FrameProcessorPluginController,
-)
 from odin_fastcs.http_connection import HTTPConnection
 from odin_fastcs.odin_adapter_controller import (
     ConfigFanSender,
@@ -17,6 +13,12 @@ from odin_fastcs.odin_adapter_controller import (
     StatusSummaryUpdater,
 )
 from odin_fastcs.odin_controller import OdinAdapterController
+from odin_fastcs.odin_data import (
+    FrameProcessorController,
+    FrameProcessorPluginController,
+    FrameReceiverController,
+    FrameReceiverDecoderController,
+)
 from odin_fastcs.util import OdinParameter
 
 HERE = Path(__file__).parent
@@ -213,3 +215,44 @@ async def test_config_fan_sender(mocker: MockerFixture):
     attr1.process.assert_called_once_with(10)
     attr2.process.assert_called_once_with(10)
     attr.set.assert_called_once_with(10)
+
+
+@pytest.mark.asyncio
+async def test_frame_reciever_controllers():
+    valid_non_decoder_parameter = OdinParameter(
+        uri=["0", "status", "buffers", "total"],
+        metadata={"value": 292, "type": "int", "writeable": False},
+    )
+    valid_decoder_parameter = OdinParameter(
+        uri=["0", "status", "decoder", "packets_dropped"],
+        metadata={"value": 0, "type": "int", "writeable": False},
+    )
+
+    invalid_decoder_parameter = OdinParameter(
+        uri=["0", "status", "decoder", "name"],
+        metadata={
+            "value": "DummyUDPFrameDecoder",
+            "type": "str",
+            "writeable": False,
+        },
+    )
+    parameters = [
+        valid_non_decoder_parameter,
+        valid_decoder_parameter,
+        invalid_decoder_parameter,
+    ]
+    fr_controller = FrameReceiverController(
+        HTTPConnection("", 0), parameters, "api/0.1"
+    )
+    await fr_controller.initialise()
+    assert isinstance(fr_controller, FrameReceiverController)
+    assert valid_non_decoder_parameter in fr_controller._parameters
+    assert len(fr_controller._parameters) == 1
+    assert "DECODER" in fr_controller.get_sub_controllers()
+
+    decoder_controller = fr_controller.get_sub_controllers()["DECODER"]
+    assert isinstance(decoder_controller, FrameReceiverDecoderController)
+    assert valid_decoder_parameter in decoder_controller._parameters
+    assert invalid_decoder_parameter not in decoder_controller._parameters
+    # index, status, decoder parts removed from path
+    assert decoder_controller._parameters[0]._path == ["packets_dropped"]

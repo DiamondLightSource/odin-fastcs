@@ -4,13 +4,18 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
-from odin_fastcs.frame_processor import FrameProcessorAdapterController
+from odin_fastcs.odin_data import (
+    FrameProcessorAdapterController,
+    FrameProcessorController,
+    FrameReceiverAdapterController,
+    FrameReceiverController,
+)
 from odin_fastcs.util import create_odin_parameters
 
 HERE = Path(__file__).parent
 
 
-def test_one_node():
+def test_one_node_fp():
     with (HERE / "input/one_node_fp_response.json").open() as f:
         response = json.loads(f.read())
 
@@ -18,7 +23,7 @@ def test_one_node():
     assert len(parameters) == 97
 
 
-def test_two_node():
+def test_two_node_fp():
     with (HERE / "input/two_node_fp_response.json").open() as f:
         response = json.loads(f.read())
 
@@ -41,6 +46,35 @@ async def test_fp_initialise(mocker: MockerFixture):
     controller = FrameProcessorAdapterController(mock_connection, parameters, "prefix")
     await controller.initialise()
     assert all(fpx in controller.get_sub_controllers() for fpx in ("FP0", "FP1"))
+    assert all(
+        isinstance(fpx, FrameProcessorController)
+        for fpx in controller.get_sub_controllers().values()
+    )
+
+
+def test_two_node_fr():
+    with (HERE / "input/two_node_fr_response.json").open() as f:
+        response = json.loads(f.read())
+
+    parameters = create_odin_parameters(response)
+    assert len(parameters) == 82
+
+
+@pytest.mark.asyncio
+async def test_fr_initialise(mocker: MockerFixture):
+    with (HERE / "input/two_node_fr_response.json").open() as f:
+        response = json.loads(f.read())
+
+    mock_connection = mocker.MagicMock()
+
+    parameters = create_odin_parameters(response)
+    controller = FrameReceiverAdapterController(mock_connection, parameters, "prefix")
+    await controller.initialise()
+    assert all(frx in controller.get_sub_controllers() for frx in ("FR0", "FR1"))
+    assert all(
+        isinstance(frx, FrameReceiverController)
+        for frx in controller.get_sub_controllers().values()
+    )
 
 
 def test_node_with_empty_list_is_correctly_counted():

@@ -3,10 +3,13 @@ from fastcs.controller import Controller
 from fastcs.datatypes import Bool, Float, Int, String
 
 from odin_fastcs.eiger_fan import EigerFanAdapterController
-from odin_fastcs.frame_processor import FrameProcessorAdapterController
 from odin_fastcs.http_connection import HTTPConnection
 from odin_fastcs.meta_writer import MetaWriterAdapterController
 from odin_fastcs.odin_adapter_controller import OdinAdapterController
+from odin_fastcs.odin_data import (
+    FrameProcessorAdapterController,
+    FrameReceiverAdapterController,
+)
 from odin_fastcs.util import OdinParameter, create_odin_parameters
 
 types = {"float": Float(), "int": Int(), "bool": Bool(), "str": String()}
@@ -69,6 +72,10 @@ class OdinController(Controller):
             case "fp":
                 return FrameProcessorAdapterController(
                     connection, parameters, f"{self.API_PREFIX}/fp"
+                )
+            case "fr":
+                return FrameReceiverAdapterController(
+                    connection, parameters, f"{self.API_PREFIX}/fr"
                 )
             case "mw":
                 return MetaWriterAdapterController(

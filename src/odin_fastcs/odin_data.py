@@ -1,3 +1,4 @@
+import logging
 import re
 from collections.abc import Iterable, Sequence
 
@@ -12,27 +13,32 @@ from odin_fastcs.odin_adapter_controller import (
 )
 from odin_fastcs.util import OdinParameter, partition
 
-UNIQUE_FP_CONFIG = [
-    "rank",
-    "number",
-    "ctrl_endpoint",
-    "meta_endpoint",
-    "fr_ready_cnxn",
-    "fr_release_cnxn",
-]
+
+class OdinDataController(OdinAdapterController):
+    def _remove_metadata_fields_paths(self):
+        # paths ending in name or description are invalid in Odin's BaseParameterTree
+        self._parameters, invalid = partition(
+            self._parameters, lambda p: p.uri[-1] not in ["name", "description"]
+        )
+        if invalid:
+            invalid_names = ["/".join(param.uri) for param in invalid]
+            logging.warning(f"Removing parameters with invalid names: {invalid_names}")
+
+    def _process_parameters(self):
+        self._remove_metadata_fields_paths()
+        for parameter in self._parameters:
+            # Remove duplicate index from uri
+            parameter.uri = parameter.uri[1:]
+            # Remove redundant status/config from parameter path
+            parameter.set_path(parameter.uri[1:])
 
 
-class FrameProcessorAdapterController(OdinAdapterController):
+class OdinDataAdapterController(OdinAdapterController):
     """Sub controller for the frame processor adapter in an odin control server."""
 
-    frames_written: AttrR = AttrR(
-        Int(),
-        handler=StatusSummaryUpdater([re.compile("FP*"), "HDF"], "frames_written", sum),
-    )
-    writing: AttrR = AttrR(
-        Bool(),
-        handler=StatusSummaryUpdater([re.compile("FP*"), "HDF"], "writing", any),
-    )
+    _unique_config: list[str] = []
+    _subcontroller_label: str = "OD"
+    _subcontroller_cls: type[OdinDataController] = OdinDataController
 
     async def initialise(self):
         idx_parameters, self._parameters = partition(
@@ -45,12 +51,14 @@ class FrameProcessorAdapterController(OdinAdapterController):
                 idx_parameters, lambda p, idx=idx: p.uri[0] == idx
             )
 
-            adapter_controller = FrameProcessorController(
+            adapter_controller = self._subcontroller_cls(
                 self._connection,
                 fp_parameters,
                 f"{self._api_prefix}/{idx}",
             )
-            self.register_sub_controller(f"FP{idx}", adapter_controller)
+            self.register_sub_controller(
+                f"{self._subcontroller_label}{idx}", adapter_controller
+            )
             await adapter_controller.initialise()
 
         self._create_attributes()
@@ -62,11 +70,11 @@ class FrameProcessorAdapterController(OdinAdapterController):
         for sub_controller in get_all_sub_controllers(self):
             for parameter in sub_controller._parameters:
                 mode, key = parameter.uri[0], parameter.uri[-1]
-                if mode == "config" and key not in UNIQUE_FP_CONFIG:
+                if mode == "config" and key not in self._unique_config:
                     try:
                         attr = getattr(sub_controller, parameter.name)
                     except AttributeError:
-                        print(
+                        logging.warning(
                             f"Controller has parameter {parameter}, "
                             f"but no corresponding attribute {parameter.name}"
                         )
@@ -88,7 +96,37 @@ class FrameProcessorAdapterController(OdinAdapterController):
             )
 
 
-class FrameProcessorController(OdinAdapterController):
+class FrameReceiverController(OdinDataController):
+    async def initialise(self):
+        self._process_parameters()
+
+        def __decoder_parameter(parameter: OdinParameter):
+            return "decoder" in parameter.path[:-1]
+
+        decoder_parameters, self._parameters = partition(
+            self._parameters, __decoder_parameter
+        )
+        decoder_controller = FrameReceiverDecoderController(
+            self._connection, decoder_parameters, f"{self._api_prefix}"
+        )
+        self.register_sub_controller("DECODER", decoder_controller)
+        await decoder_controller.initialise()
+        self._create_attributes()
+
+
+class FrameReceiverAdapterController(OdinDataAdapterController):
+    _subcontroller_label = "FR"
+    _subcontroller_cls = FrameReceiverController
+
+
+class FrameReceiverDecoderController(OdinAdapterController):
+    def _process_parameters(self):
+        for parameter in self._parameters:
+            # remove redundant status/decoder part from path
+            parameter.set_path(parameter.uri[2:])
+
+
+class FrameProcessorController(OdinDataController):
     """Sub controller for a frame processor application."""
 
     async def initialise(self):
@@ -109,13 +147,6 @@ class FrameProcessorController(OdinAdapterController):
         await self._create_plugin_sub_controllers(plugins)
         self._create_attributes()
 
-    def _process_parameters(self):
-        for parameter in self._parameters:
-            # Remove duplicate index from uri
-            parameter.uri = parameter.uri[1:]
-            # Remove redundant status/config from parameter path
-            parameter.set_path(parameter.uri[1:])
-
     async def _create_plugin_sub_controllers(self, plugins: Sequence[str]):
         for plugin in plugins:
 
@@ -134,6 +165,27 @@ class FrameProcessorController(OdinAdapterController):
             )
             self.register_sub_controller(plugin.upper(), plugin_controller)
             await plugin_controller.initialise()
+
+
+class FrameProcessorAdapterController(OdinDataAdapterController):
+    frames_written: AttrR = AttrR(
+        Int(),
+        handler=StatusSummaryUpdater([re.compile("FP*"), "HDF"], "frames_written", sum),
+    )
+    writing: AttrR = AttrR(
+        Bool(),
+        handler=StatusSummaryUpdater([re.compile("FP*"), "HDF"], "writing", any),
+    )
+    _unique_config = [
+        "rank",
+        "number",
+        "ctrl_endpoint",
+        "meta_endpoint",
+        "fr_ready_cnxn",
+        "fr_release_cnxn",
+    ]
+    _subcontroller_label = "FP"
+    _subcontroller_cls = FrameProcessorController
 
 
 class FrameProcessorPluginController(OdinAdapterController):
