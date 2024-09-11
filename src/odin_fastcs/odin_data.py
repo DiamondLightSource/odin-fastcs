@@ -191,10 +191,34 @@ class FrameProcessorAdapterController(OdinDataAdapterController):
 class FrameProcessorPluginController(OdinAdapterController):
     """SubController for a plugin in a frameProcessor application."""
 
+    async def initialise(self):
+        if any("dataset" in p.path for p in self._parameters):
+
+            def __dataset_parameter(param: OdinParameter):
+                return "dataset" in param.path
+
+            dataset_parameters, self._parameters = partition(
+                self._parameters, __dataset_parameter
+            )
+            if dataset_parameters:
+                dataset_controller = FrameProcessorDatasetController(
+                    self._connection, dataset_parameters, f"{self._api_prefix}"
+                )
+                self.register_sub_controller("DS", dataset_controller)
+                await dataset_controller.initialise()
+
+        return await super().initialise()
+
     def _process_parameters(self):
         for parameter in self._parameters:
             # Remove plugin name included in controller base path
             parameter.set_path(parameter.path[1:])
+
+
+class FrameProcessorDatasetController(OdinAdapterController):
+    def _process_parameters(self):
+        for parameter in self._parameters:
+            parameter.set_path(parameter.uri[3:])
 
 
 def get_all_sub_controllers(

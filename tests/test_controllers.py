@@ -79,6 +79,11 @@ async def test_fp_create_plugin_sub_controllers():
             _path=["hdf", "frames_written"],
             metadata={"type": "int"},
         ),
+        OdinParameter(
+            uri=["status", "hdf", "dataset", "compressed_size", "compression"],
+            _path=["hdf", "dataset", "compressed_size", "compression"],
+            metadata={"type": "str"},
+        ),
     ]
 
     fpc = FrameProcessorController(HTTPConnection("", 0), parameters, "api/0.1")
@@ -93,7 +98,8 @@ async def test_fp_create_plugin_sub_controllers():
             metadata={"type": "str"},
         )
     ]
-    match fpc.get_sub_controllers():
+    controllers = fpc.get_sub_controllers()
+    match controllers:
         case {
             "HDF": FrameProcessorPluginController(
                 _parameters=[
@@ -104,7 +110,15 @@ async def test_fp_create_plugin_sub_controllers():
                 ]
             )
         }:
-            pass
+            sub_controllers = controllers["HDF"].get_sub_controllers()
+            assert "DS" in sub_controllers
+            assert sub_controllers["DS"]._parameters == [
+                OdinParameter(
+                    uri=["status", "hdf", "dataset", "compressed_size", "compression"],
+                    _path=["compressed_size", "compression"],
+                    metadata={"type": "str"},
+                )
+            ]
         case _:
             pytest.fail("Sub controllers not as expected")
 
