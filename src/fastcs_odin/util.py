@@ -140,10 +140,10 @@ def partition(
     return truthy, falsy
 
 
-def unpack_status_arrays(parameter: list, uri: list[list[str]]):
-    """Takes a list of OdinParameters and a list of special uri. Search the parameter
-    for elements that match the values in the uri list and split them into one
-    new odinParameter for each value.
+def unpack_status_arrays(parameter: list[OdinParameter], uri: list[list[str]]):
+    """Takes a list of OdinParameters and a list of URIs. Search the OdinParameter list
+    for elements that match the values in the URI list and split them into one new
+    odinParameter for each element in the returned list.
 
     Args:
         parameter: List of OdinParameters
@@ -166,20 +166,18 @@ def unpack_status_arrays(parameter: list, uri: list[list[str]]):
                 .replace("]", "")
                 .split()
             )
-            counter = 0
-            for valeu in status_list:
+
+            for value in status_list:
                 metadata = {
-                    "value": valeu,
+                    "value": value,
                     "type": el.metadata["type"],
                     "writeable": el.metadata["writeable"],
                 }
                 od_parameter = OdinParameter(
-                    uri=el.uri + [str(counter)], metadata=metadata
+                    uri=el.uri + [str(status_list.index(value))], metadata=metadata
                 )
                 od_parameter.set_path(od_parameter.uri[1:])
                 parameter.append(od_parameter)
-
-                counter += 1
 
             # Removing old string list from parameters available
             # Not sure if I have to remove elements from the uri list
