@@ -1,16 +1,18 @@
 # Changes here will be overwritten by Copier
-_commit: 2.1.0
+_commit: 2.3.0
 _src_path: gh:DiamondLightSource/python-copier-template
 author_email: gary.yendell@diamond.ac.uk
 author_name: Gary Yendell
+component_lifecycle: experimental
 component_owner: user:mef65357
+component_type: service
 description: FastCS support for the Odin detector software framework
-distribution_name: odin-fastcs
+distribution_name: fastcs-odin
 docker: true
 docs_type: sphinx
 git_platform: github.com
 github_org: DiamondLightSource
-package_name: odin_fastcs
+package_name: fastcs_odin
 pypi: true
-repo_name: odin-fastcs
+repo_name: fastcs-odin
 type_checker: mypy

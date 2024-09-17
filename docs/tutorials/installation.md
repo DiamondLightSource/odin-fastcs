@@ -2,7 +2,7 @@
 
 ## Check your version of python
 
-You will need python 3.8 or later. You can check your version of python by
+You will need python 3.10 or later. You can check your version of python by
 typing into a terminal:
 
 ```
@@ -24,19 +24,19 @@ $ source /path/to/venv/bin/activate
 You can now use `pip` to install the library and its dependencies:
 
 ```
-$ python3 -m pip install odin-fastcs
+$ python3 -m pip install fastcs-odin
 ```
 
 If you require a feature that is not currently released you can also install
 from github:
 
 ```
-$ python3 -m pip install git+https://github.com/DiamondLightSource/odin-fastcs.git
+$ python3 -m pip install git+https://github.com/DiamondLightSource/fastcs-odin.git
 ```
 
 The library should now be installed and the commandline interface on your path.
 You can check the version that has been installed by typing:
 
 ```
-$ odin-fastcs --version
+$ fastcs-odin --version
 ```

@@ -8,7 +8,7 @@
             "name": "Odin IOC",
             "type": "debugpy",
             "request": "launch",
-            "module": "odin_fastcs",
+            "module": "fastcs_odin",
             "justMyCode": false,
             "console": "integratedTerminal",
             "args": ["ioc", "ODIN"]
@@ -17,7 +17,7 @@
             "name": "Odin Asyncio",
             "type": "debugpy",
             "request": "launch",
-            "module": "odin_fastcs",
+            "module": "fastcs_odin",
             "justMyCode": false,
             "console": "integratedTerminal",
             "args": ["asyncio"]

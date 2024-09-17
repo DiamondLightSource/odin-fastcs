@@ -6,20 +6,20 @@ from fastcs.attributes import AttrR, AttrRW
 from fastcs.datatypes import Bool, Float, Int
 from pytest_mock import MockerFixture
 
-from odin_fastcs.http_connection import HTTPConnection
-from odin_fastcs.odin_adapter_controller import (
+from fastcs_odin.http_connection import HTTPConnection
+from fastcs_odin.odin_adapter_controller import (
     ConfigFanSender,
     ParamTreeHandler,
     StatusSummaryUpdater,
 )
-from odin_fastcs.odin_controller import OdinAdapterController
-from odin_fastcs.odin_data import (
+from fastcs_odin.odin_controller import OdinAdapterController
+from fastcs_odin.odin_data import (
     FrameProcessorController,
     FrameProcessorPluginController,
     FrameReceiverController,
     FrameReceiverDecoderController,
 )
-from odin_fastcs.util import OdinParameter
+from fastcs_odin.util import OdinParameter
 
 HERE = Path(__file__).parent
 
@@ -54,7 +54,7 @@ def test_fp_process_parameters():
     fpc = FrameProcessorController(HTTPConnection("", 0), parameters, "api/0.1")
 
     fpc._process_parameters()
-    assert fpc._parameters == [
+    assert fpc.parameters == [
         OdinParameter(
             uri=["status", "hdf", "frames_written"],
             _path=["hdf", "frames_written"],
@@ -91,7 +91,7 @@ async def test_fp_create_plugin_sub_controllers():
     await fpc._create_plugin_sub_controllers(["hdf"])
 
     # Check that hdf parameter has been split into a sub controller
-    assert fpc._parameters == [
+    assert fpc.parameters == [
         OdinParameter(
             uri=["config", "ctrl_endpoint"],
             _path=["ctrl_endpoint"],
@@ -102,7 +102,7 @@ async def test_fp_create_plugin_sub_controllers():
     match controllers:
         case {
             "HDF": FrameProcessorPluginController(
-                _parameters=[
+                parameters=[
                     OdinParameter(
                         uri=["status", "hdf", "frames_written"],
                         _path=["frames_written"],
@@ -112,7 +112,7 @@ async def test_fp_create_plugin_sub_controllers():
         }:
             sub_controllers = controllers["HDF"].get_sub_controllers()
             assert "DS" in sub_controllers
-            assert sub_controllers["DS"]._parameters == [
+            assert sub_controllers["DS"].parameters == [
                 OdinParameter(
                     uri=["status", "hdf", "dataset", "compressed_size", "compression"],
                     _path=["compressed_size", "compression"],
@@ -130,7 +130,7 @@ async def test_param_tree_handler_update(mocker: MockerFixture):
 
     handler = ParamTreeHandler("hdf/frames_written")
 
-    controller._connection.get.return_value = {"frames_written": 20}
+    controller.connection.get.return_value = {"frames_written": 20}
     await handler.update(controller, attr)
     attr.set.assert_called_once_with(20)
 
@@ -142,8 +142,8 @@ async def test_param_tree_handler_update_exception(mocker: MockerFixture):
 
     handler = ParamTreeHandler("hdf/frames_written")
 
-    controller._connection.get.return_value = {"frames_wroted": 20}
-    error_mock = mocker.patch("odin_fastcs.odin_adapter_controller.logging.error")
+    controller.connection.get.return_value = {"frames_wroted": 20}
+    error_mock = mocker.patch("fastcs_odin.odin_adapter_controller.logging.error")
     await handler.update(controller, attr)
     error_mock.assert_called_once_with(
         "Update loop failed for %s:\n%s", "hdf/frames_written", mocker.ANY
@@ -159,7 +159,7 @@ async def test_param_tree_handler_put(mocker: MockerFixture):
 
     # Test put
     await handler.put(controller, attr, 10)
-    controller._connection.put.assert_called_once_with("hdf/frames", 10)
+    controller.connection.put.assert_called_once_with("hdf/frames", 10)
 
 
 @pytest.mark.asyncio
@@ -169,8 +169,8 @@ async def test_param_tree_handler_put_exception(mocker: MockerFixture):
 
     handler = ParamTreeHandler("hdf/frames")
 
-    controller._connection.put.return_value = {"error": "No, you can't do that"}
-    error_mock = mocker.patch("odin_fastcs.odin_adapter_controller.logging.error")
+    controller.connection.put.return_value = {"error": "No, you can't do that"}
+    error_mock = mocker.patch("fastcs_odin.odin_adapter_controller.logging.error")
     await handler.put(controller, attr, -1)
     error_mock.assert_called_once_with(
         "Put %s = %s failed:\n%s", "hdf/frames", -1, mocker.ANY
@@ -260,13 +260,13 @@ async def test_frame_reciever_controllers():
     )
     await fr_controller.initialise()
     assert isinstance(fr_controller, FrameReceiverController)
-    assert valid_non_decoder_parameter in fr_controller._parameters
-    assert len(fr_controller._parameters) == 1
+    assert valid_non_decoder_parameter in fr_controller.parameters
+    assert len(fr_controller.parameters) == 1
     assert "DECODER" in fr_controller.get_sub_controllers()
 
     decoder_controller = fr_controller.get_sub_controllers()["DECODER"]
     assert isinstance(decoder_controller, FrameReceiverDecoderController)
-    assert valid_decoder_parameter in decoder_controller._parameters
-    assert invalid_decoder_parameter not in decoder_controller._parameters
+    assert valid_decoder_parameter in decoder_controller.parameters
+    assert invalid_decoder_parameter not in decoder_controller.parameters
     # index, status, decoder parts removed from path
-    assert decoder_controller._parameters[0]._path == ["packets_dropped"]
+    assert decoder_controller.parameters[0]._path == ["packets_dropped"]

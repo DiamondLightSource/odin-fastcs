@@ -2,15 +2,15 @@ from fastcs.connections.ip_connection import IPConnectionSettings
 from fastcs.controller import Controller
 from fastcs.datatypes import Bool, Float, Int, String
 
-from odin_fastcs.eiger_fan import EigerFanAdapterController
-from odin_fastcs.http_connection import HTTPConnection
-from odin_fastcs.meta_writer import MetaWriterAdapterController
-from odin_fastcs.odin_adapter_controller import OdinAdapterController
-from odin_fastcs.odin_data import (
+from fastcs_odin.eiger_fan import EigerFanAdapterController
+from fastcs_odin.http_connection import HTTPConnection
+from fastcs_odin.meta_writer import MetaWriterAdapterController
+from fastcs_odin.odin_adapter_controller import OdinAdapterController
+from fastcs_odin.odin_data import (
     FrameProcessorAdapterController,
     FrameReceiverAdapterController,
 )
-from odin_fastcs.util import OdinParameter, create_odin_parameters
+from fastcs_odin.util import OdinParameter, create_odin_parameters
 
 types = {"float": Float(), "int": Int(), "bool": Bool(), "str": String()}
 
@@ -28,12 +28,12 @@ class OdinController(Controller):
     def __init__(self, settings: IPConnectionSettings) -> None:
         super().__init__()
 
-        self._connection = HTTPConnection(settings.ip, settings.port)
+        self.connection = HTTPConnection(settings.ip, settings.port)
 
     async def initialise(self) -> None:
-        self._connection.open()
+        self.connection.open()
 
-        adapters_response = await self._connection.get(f"{self.API_PREFIX}/adapters")
+        adapters_response = await self.connection.get(f"{self.API_PREFIX}/adapters")
         match adapters_response:
             case {"adapters": [*adapter_list]}:
                 adapters = tuple(a for a in adapter_list if isinstance(a, str))
@@ -47,17 +47,17 @@ class OdinController(Controller):
         for adapter in adapters:
             # Get full parameter tree and split into parameters at the root and under
             # an index where there are N identical trees for each underlying process
-            response = await self._connection.get(
+            response = await self.connection.get(
                 f"{self.API_PREFIX}/{adapter}", headers=REQUEST_METADATA_HEADER
             )
 
             adapter_controller = self._create_adapter_controller(
-                self._connection, create_odin_parameters(response), adapter
+                self.connection, create_odin_parameters(response), adapter
             )
             self.register_sub_controller(adapter.upper(), adapter_controller)
             await adapter_controller.initialise()
 
-        await self._connection.close()
+        await self.connection.close()
 
     def _create_adapter_controller(
         self,
@@ -93,4 +93,4 @@ class OdinController(Controller):
                 )
 
     async def connect(self) -> None:
-        self._connection.open()
+        self.connection.open()

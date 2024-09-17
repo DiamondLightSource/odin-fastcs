@@ -16,7 +16,7 @@ ENV PATH=/venv/bin:$PATH
 FROM developer as build
 COPY . /context
 WORKDIR /context
-RUN pip install .
+RUN touch dev-requirements.txt && pip install -c dev-requirements.txt .
 
 # The runtime stage copies the built venv into a slim runtime container
 FROM python:${PYTHON_VERSION}-slim as runtime
@@ -30,5 +30,5 @@ RUN mkdir -p /epics/opi
 WORKDIR /epics/opi
 
 # change this entrypoint if it is not the same as the repo
-ENTRYPOINT ["odin-fastcs"]
+ENTRYPOINT ["fastcs-odin"]
 CMD ["--version"]
