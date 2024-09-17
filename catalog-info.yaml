@@ -1,10 +1,10 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: odin-fastcs
-  title: odin-fastcs
+  name: fastcs-odin
+  title: fastcs-odin
   description: FastCS support for the Odin detector software framework
 spec:
-  type: documentation
+  type: service
   lifecycle: experimental
   owner: user:mef65357

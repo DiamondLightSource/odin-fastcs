@@ -4,13 +4,13 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
-from odin_fastcs.odin_data import (
+from fastcs_odin.odin_data import (
     FrameProcessorAdapterController,
     FrameProcessorController,
     FrameReceiverAdapterController,
     FrameReceiverController,
 )
-from odin_fastcs.util import create_odin_parameters
+from fastcs_odin.util import create_odin_parameters
 
 HERE = Path(__file__).parent
 

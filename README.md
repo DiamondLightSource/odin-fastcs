@@ -1,24 +1,25 @@
-[![CI](https://github.com/DiamondLightSource/odin-fastcs/actions/workflows/ci.yml/badge.svg)](https://github.com/DiamondLightSource/odin-fastcs/actions/workflows/ci.yml)
-[![Coverage](https://codecov.io/gh/DiamondLightSource/odin-fastcs/branch/main/graph/badge.svg)](https://codecov.io/gh/DiamondLightSource/odin-fastcs)
-[![PyPI](https://img.shields.io/pypi/v/odin-fastcs.svg)](https://pypi.org/project/odin-fastcs)
+[![CI](https://github.com/DiamondLightSource/fastcs-odin/actions/workflows/ci.yml/badge.svg)](https://github.com/DiamondLightSource/fastcs-odin/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/DiamondLightSource/fastcs-odin/branch/main/graph/badge.svg)](https://codecov.io/gh/DiamondLightSource/fastcs-odin)
+[![PyPI](https://img.shields.io/pypi/v/fastcs-odin.svg)](https://pypi.org/project/fastcs-odin)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-# Odin FastCS
+# FastCS Odin
+
 FastCS support for the Odin detector software framework
 
-Source          | <https://github.com/DiamondLightSource/odin-fastcs>
+Source          | <https://github.com/DiamondLightSource/fastcs-odin>
 :---:           | :---:
-PyPI            | `pip install odin-fastcs`
-Docker          | `docker run ghcr.io/diamondlightsource/odin-fastcs:latest`
-Documentation   | <https://diamondlightsource.github.io/odin-fastcs>
-Releases        | <https://github.com/DiamondLightSource/odin-fastcs/releases>
+PyPI            | `pip install fastcs-odin`
+Docker          | `docker run ghcr.io/diamondlightsource/fastcs-odin:latest`
+Documentation   | <https://diamondlightsource.github.io/fastcs-odin>
+Releases        | <https://github.com/DiamondLightSource/fastcs-odin/releases>
 
 ## Development
 
-In most cases it should be sufficient to work within the odin-fastcs devcontainer (or a
+In most cases it should be sufficient to work within the fastcs-odin devcontainer (or a
 virtualenv) and run the unit tests to develop new features and bug fixes.
 
-In order to develop and test odin-fastcs alongside local dev versions of odin-control
+In order to develop and test fastcs-odin alongside local dev versions of odin-control
 and odin-data applications, a development environment can be run up from the odin-data
 devcontainer.
 
@@ -33,9 +34,9 @@ Note, commands starting with `>` are vscode commands and can be run with `Ctrl+S
 while commands starting with `$` are bash commands to be run in a terminal (inside the
 vscode devcontainer).
 
-1. Clone [odin-data] (next to odin-fastcs), checkout the `fastcs-dev` branch and re-open
+1. Clone [odin-data] (next to fastcs-odin), checkout the `fastcs-dev` branch and re-open
    in devcontainer
-2. Add odin-fastcs to the workspace `> Workspaces: Add Folder to Workspace...`
+2. Add fastcs-odin to the workspace `> Workspaces: Add Folder to Workspace...`
 
     i. If it asks to reload window, then do so
 
@@ -47,26 +48,26 @@ vscode devcontainer).
 
     ii. `> CMake: Install`
 
-5. Install odin-fastcs and its odin dev environment
+5. Install fastcs-odin and its odin dev environment
 
     i. `> Python: Select Interpreter`, `Select at workspace level` and select
     `/venv/bin/python`
 
-    ii. Run `$ pip install -e .[dev,odin]` at the root of odin-fastcs
+    ii. Run `$ pip install -e .[dev,odin]` at the root of fastcs-odin
 
-6. Prepare the dev environment (in the root of odin-fastcs)
+6. Prepare the dev environment (in the root of fastcs-odin)
 
     i. `$ dev/configure.sh one_node_fp /workspaces/odin-data/vscode_prefix /venv`
 
     ii. `$ zellij`, wait for it to finish installing and close with `Ctrl+Q`
 
-7. Run the dev environment (in the root of odin-fastcs)
+7. Run the dev environment (in the root of fastcs-odin)
 
     i. `$ dev/start.sh`
 
 8. `> Debug: Select and Start Debugging` and select `Odin IOC` to run the IOC
 
-UIs will be generated in the root of odin-fastcs that can be opened in Phoebus. This is
+UIs will be generated in the root of fastcs-odin that can be opened in Phoebus. This is
 the clearest way to see the PVs that have been generated for the Odin server. It is also
 possible to run `dbl()` in the EPICS shell to print a flat list of PVs.
 
@@ -81,10 +82,10 @@ from GitHub.
 
 ### Isolated Development Environment
 
-While it is necessary to work on odin-control / odin-data alongside odin-fastcs in some
+While it is necessary to work on odin-control / odin-data alongside fastcs-odin in some
 cases, once these additions have been made they should be backed by tests that can be
 run without the full development environment. This means in most case it is possible to
-develop odin-fastcs in isolation and trust the unit tests to give a good indication
+develop fastcs-odin in isolation and trust the unit tests to give a good indication
 that things are working as expected, and so that the same checks can be made in CI and
 reduce manual testing during code review.
 
@@ -92,7 +93,7 @@ It is possible to test some functionality in isolation by dumping server respons
 creating tests that parse those responses. Responses can be dumped from various Odin
 systems and tests written against them that can run in CI to ensure support for those
 systems is not broken (or get early warning that an adapter needs to be updated to work
-with the latest odin-fastcs). The `tests/dump_server_response.py` helper script will
+with the latest fastcs-odin). The `tests/dump_server_response.py` helper script will
 generate json files for each adapter in an Odin server to write tests against.
 
 [odin-data]: https://github.com/odin-detector/odin-data
@@ -100,4 +101,4 @@ generate json files for each adapter in an Odin server to write tests against.
 
 <!-- README only content. Anything below this line won't be included in index.md -->
 
-See https://diamondlightsource.github.io/odin-fastcs for more detailed documentation.
+See https://diamondlightsource.github.io/fastcs-odin for more detailed documentation.

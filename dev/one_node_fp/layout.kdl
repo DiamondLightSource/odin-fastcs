@@ -16,5 +16,5 @@ layout {
         plugin location="zellij:status-bar"
     }
 }
-seasion_name "ODIN-FASTCS"
+session_name "FastCS Odin"
 attach_to_session true

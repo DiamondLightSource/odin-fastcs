@@ -9,8 +9,8 @@ from fastcs.controller import BaseController, SubController
 from fastcs.datatypes import Bool, Float, Int, String
 from fastcs.util import snake_to_pascal
 
-from odin_fastcs.http_connection import HTTPConnection
-from odin_fastcs.util import OdinParameter
+from fastcs_odin.http_connection import HTTPConnection
+from fastcs_odin.util import OdinParameter
 
 types = {"float": Float(), "int": Int(), "bool": Bool(), "str": String()}
 
@@ -33,7 +33,7 @@ class ParamTreeHandler(Handler):
         value: Any,
     ) -> None:
         try:
-            response = await controller._connection.put(self.path, value)
+            response = await controller.connection.put(self.path, value)
             match response:
                 case {"error": error}:
                     raise AdapterResponseError(error)
@@ -46,7 +46,7 @@ class ParamTreeHandler(Handler):
         attr: AttrR[Any],
     ) -> None:
         try:
-            response = await controller._connection.get(self.path)
+            response = await controller.connection.get(self.path)
 
             # TODO: This would be nicer if the key was 'value' so we could match
             parameter = self.path.split("/")[-1]
@@ -165,8 +165,8 @@ class OdinAdapterController(SubController):
         """
         super().__init__()
 
-        self._connection = connection
-        self._parameters = parameters
+        self.connection = connection
+        self.parameters = parameters
         self._api_prefix = api_prefix
 
     async def initialise(self):
@@ -183,7 +183,7 @@ class OdinAdapterController(SubController):
 
     def _create_attributes(self):
         """Create controller ``Attributes`` from ``OdinParameters``."""
-        for parameter in self._parameters:
+        for parameter in self.parameters:
             if "writeable" in parameter.metadata and parameter.metadata["writeable"]:
                 attr_class = AttrRW
             else:

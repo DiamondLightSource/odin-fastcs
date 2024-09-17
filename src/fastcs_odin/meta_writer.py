@@ -1,7 +1,7 @@
 from fastcs.attributes import AttrR, AttrRW, AttrW
 from fastcs.datatypes import Bool, String
 
-from odin_fastcs.odin_adapter_controller import OdinAdapterController, ParamTreeHandler
+from fastcs_odin.odin_adapter_controller import OdinAdapterController, ParamTreeHandler
 
 
 class MetaWriterAdapterController(OdinAdapterController):

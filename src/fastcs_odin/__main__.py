@@ -6,7 +6,7 @@ from fastcs.backends.asyncio_backend import AsyncioBackend
 from fastcs.backends.epics.gui import EpicsGUIOptions
 from fastcs.connections.ip_connection import IPConnectionSettings
 
-from odin_fastcs.odin_controller import OdinController
+from fastcs_odin.odin_controller import OdinController
 
 from . import __version__
 
@@ -64,6 +64,6 @@ def asyncio(ip: str = OdinIp, port: int = OdinPort):
     backend.run()
 
 
-# test with: python -m odin_fastcs
+# test with: python -m fastcs_odin
 if __name__ == "__main__":
     app()

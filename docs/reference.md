@@ -6,7 +6,7 @@ Technical reference material including APIs and release notes.
 :maxdepth: 1
 :glob:
 
-reference/*
+API <_api/fastcs_odin>
 genindex
-Release Notes <https://github.com/DiamondLightSource/odin-fastcs/releases>
+Release Notes <https://github.com/DiamondLightSource/fastcs-odin/releases>
 ```
