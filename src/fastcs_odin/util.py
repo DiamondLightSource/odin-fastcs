@@ -153,6 +153,7 @@ def unpack_status_arrays(parameter: list[OdinParameter], uri: list[list[str]]):
         list[OdinParameters]
 
     """
+    removelist = []
     for el in parameter:
         if el.uri in uri:
             # Because the status is treated as a string we need
@@ -166,21 +167,17 @@ def unpack_status_arrays(parameter: list[OdinParameter], uri: list[list[str]]):
                 .replace("]", "")
                 .split()
             )
-
-            for value in status_list:
+            for idx, value in enumerate(status_list):
                 metadata = {
                     "value": value,
                     "type": el.metadata["type"],
                     "writeable": el.metadata["writeable"],
                 }
-                od_parameter = OdinParameter(
-                    uri=el.uri + [str(status_list.index(value))], metadata=metadata
-                )
-                od_parameter.set_path(od_parameter.uri[1:])
+                od_parameter = OdinParameter(uri=el.uri + [str(idx)], metadata=metadata)
                 parameter.append(od_parameter)
+            removelist.append(el)
 
-            # Removing old string list from parameters available
-            # Not sure if I have to remove elements from the uri list
-            # as this should be relatively small
-            parameter.remove(el)
+    for value in removelist:
+        parameter.remove(value)
+
     return parameter
