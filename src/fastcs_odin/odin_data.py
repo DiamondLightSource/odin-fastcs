@@ -21,7 +21,7 @@ class OdinDataAdapterController(ControllerVector):
     """Sub controller for the frame processor adapter in an odin control server."""
 
     _unique_config: list[str] = []
-    _subcontroller_label: str = "OD"
+    _subcontroller_label: str = "od"
     _subcontroller_cls: type[OdinSubController] = OdinSubController
 
     def __init__(

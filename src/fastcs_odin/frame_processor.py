@@ -75,7 +75,7 @@ class FrameProcessorController(OdinSubController):
                 f"{self._api_prefix}",
                 self._ios,
             )
-            self.add_sub_controller(plugin.upper(), plugin_controller)
+            self.add_sub_controller(plugin, plugin_controller)
             await plugin_controller.initialise()
 
 
@@ -100,7 +100,7 @@ class FrameProcessorAdapterController(OdinDataAdapterController):
         "fr_ready_cnxn",
         "fr_release_cnxn",
     ]
-    _subcontroller_label = "FP"
+    _subcontroller_label = "fp"
     _subcontroller_cls = FrameProcessorController
 
     def _collect_commands(
@@ -187,14 +187,14 @@ class FrameProcessorPluginController(OdinSubController):
             dataset_parameters, self.parameters = partition(
                 self.parameters, __dataset_parameter
             )
-            if dataset_parameters:
+                if dataset_parameters:
                 dataset_controller = FrameProcessorDatasetController(
                     self.connection,
                     dataset_parameters,
                     f"{self._api_prefix}",
                     self._ios,
                 )
-                self.add_sub_controller("DS", dataset_controller)
+                self.add_sub_controller("ds", dataset_controller)
                 await dataset_controller.initialise()
 
     def _construct_command(self, command_name, plugin_name):

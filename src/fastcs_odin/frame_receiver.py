@@ -21,7 +21,7 @@ class FrameReceiverController(OdinSubController):
         decoder_controller = FrameReceiverDecoderController(
             self.connection, decoder_parameters, f"{self._api_prefix}", self._ios
         )
-        self.add_sub_controller("DECODER", decoder_controller)
+        self.add_sub_controller("decoder", decoder_controller)
         await decoder_controller.initialise()
 
         for parameter in self.parameters:
@@ -36,7 +36,7 @@ class FrameReceiverController(OdinSubController):
 
 
 class FrameReceiverAdapterController(OdinDataAdapterController):
-    _subcontroller_label = "FR"
+    _subcontroller_label = "fr"
     _subcontroller_cls = FrameReceiverController
     _unique_config = [
         "rank",

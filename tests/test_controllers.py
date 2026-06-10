@@ -256,7 +256,7 @@ async def test_fp_create_plugin_sub_controllers(mocker: MockerFixture):
     controllers = fpc.sub_controllers
     match controllers:
         case {
-            "HDF": FrameProcessorPluginController(
+            "hdf": FrameProcessorPluginController(
                 parameters=[
                     OdinParameter(
                         uri=["status", "hdf", "frames_written"],
@@ -268,10 +268,10 @@ async def test_fp_create_plugin_sub_controllers(mocker: MockerFixture):
                 ]
             )
         }:
-            sub_controllers = controllers["HDF"].sub_controllers
-            assert "DS" in sub_controllers
-            assert isinstance(sub_controllers["DS"], OdinSubController)
-            assert sub_controllers["DS"].parameters == [
+            sub_controllers = controllers["hdf"].sub_controllers
+            assert "ds" in sub_controllers
+            assert isinstance(sub_controllers["ds"], OdinSubController)
+            assert sub_controllers["ds"].parameters == [
                 OdinParameter(
                     uri=["status", "hdf", "dataset", "compressed_size", "compression"],
                     _path=["compressed_size", "compression"],
@@ -337,25 +337,25 @@ async def test_status_summary_attribute_io():
     hdf1_controller = Controller()
     hdf2_controller = Controller()
 
-    controller.add_sub_controller("FP", fpa_controller)
-    fpa_controller.add_sub_controller("FP0", fp1_controller)
-    fpa_controller.add_sub_controller("FP1", fp2_controller)
-    fp1_controller.add_sub_controller("HDF", hdf1_controller)
-    fp2_controller.add_sub_controller("HDF", hdf2_controller)
+    controller.add_sub_controller("fp", fpa_controller)
+    fpa_controller.add_sub_controller("fp0", fp1_controller)
+    fpa_controller.add_sub_controller("fp1", fp2_controller)
+    fp1_controller.add_sub_controller("hdf", hdf1_controller)
+    fp2_controller.add_sub_controller("hdf", hdf2_controller)
 
     io = StatusSummaryAttributeIO()
 
     frames_written = AttrR(
         Int(),
         io_ref=StatusSummaryAttributeIORef(
-            ["FP", re.compile("FP*"), "HDF"], "frames_written", partial(sum, start=0)
+            ["fp", re.compile("fp*"), "hdf"], "frames_written", partial(sum, start=0)
         ),
     )
     controller.frames_written = frames_written
     writing = AttrR(
         Bool(),
         io_ref=StatusSummaryAttributeIORef(
-            ["FP", re.compile("FP*"), ("HDF",)], "writing", any
+            ["fp", re.compile("fp*"), ("hdf",)], "writing", any
         ),
     )
     controller.writing = writing
@@ -380,14 +380,14 @@ async def test_status_summary_attribute_io():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_sub_controller", ("FP", ("FP",), re.compile("FP")))
+@pytest.mark.parametrize("mock_sub_controller", ("fp", ("fp",), re.compile("fp")))
 async def test_status_summary_updater_raise_exception_if_controller_not_found(
     mock_sub_controller, mocker: MockerFixture
 ):
     controller = Controller()
 
     controller.writing = AttrR(
-        Bool(), StatusSummaryAttributeIORef(["OD", mock_sub_controller], "writing", any)
+        Bool(), StatusSummaryAttributeIORef(["od", mock_sub_controller], "writing", any)
     )
     with pytest.raises(ValueError, match=r"Sub controller .* not found"):
         initialise_summary_attributes(controller)
@@ -436,9 +436,9 @@ async def test_frame_reciever_controllers():
     assert isinstance(fr_controller, FrameReceiverController)
     assert valid_non_decoder_parameter in fr_controller.parameters
     assert len(fr_controller.parameters) == 1
-    assert "DECODER" in fr_controller.sub_controllers
+    assert "decoder" in fr_controller.sub_controllers
 
-    decoder_controller = fr_controller.sub_controllers["DECODER"]
+    decoder_controller = fr_controller.sub_controllers["decoder"]
     assert isinstance(decoder_controller, FrameReceiverDecoderController)
     assert valid_decoder_parameter in decoder_controller.parameters
     assert invalid_decoder_parameter not in decoder_controller.parameters
@@ -457,7 +457,7 @@ async def test_frame_processor_start_and_stop_writing(mocker: MockerFixture):
     await fpc._create_plugin_sub_controllers(["hdf"])
 
     # Mock the commands to check calls
-    hdf = fpc.sub_controllers["HDF"]
+    hdf = fpc.sub_controllers["hdf"]
     hdf.start_writing = mocker.AsyncMock()  # type: ignore
     hdf.stop_writing = mocker.AsyncMock()  # type: ignore
 
@@ -493,10 +493,10 @@ async def test_status_summary_updater_raises_exception_if_attribute_not_found():
     controller = Controller()
     sub_controller = Controller()
 
-    controller.add_sub_controller("OD", sub_controller)
+    controller.add_sub_controller("od", sub_controller)
 
     controller.writing = AttrR(
-        Bool(), StatusSummaryAttributeIORef(["OD"], "some_attribute", any)
+        Bool(), StatusSummaryAttributeIORef(["od"], "some_attribute", any)
     )
     with pytest.raises(KeyError, match=r"Sub controller .* does not have attribute"):
         initialise_summary_attributes(controller)
