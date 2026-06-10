@@ -68,7 +68,7 @@ class FrameProcessorController(OdinSubController):
                 f"{self._api_prefix}",
                 self._ios,
             )
-            self.add_sub_controller(plugin.upper(), plugin_controller)
+            self.add_sub_controller(plugin, plugin_controller)
             await plugin_controller.initialise()
 
 
@@ -89,13 +89,13 @@ class FrameProcessorAdapterController(OdinDataAdapterController):
     frames_written = AttrR(
         Int(),
         io_ref=StatusSummaryAttributeIORef(
-            [re.compile(r"[0-9]+"), "HDF"], "frames_written", partial(sum, start=0)
+            [re.compile(r"[0-9]+"), "hdf"], "frames_written", partial(sum, start=0)
         ),
     )
     writing = AttrR(
         Bool(),
         io_ref=StatusSummaryAttributeIORef(
-            [re.compile(r"[0-9]+"), "HDF"], "writing", any
+            [re.compile(r"[0-9]+"), "hdf"], "writing", any
         ),
     )
     _unique_config = [
@@ -106,7 +106,7 @@ class FrameProcessorAdapterController(OdinDataAdapterController):
         "fr_ready_cnxn",
         "fr_release_cnxn",
     ]
-    _subcontroller_label = "FP"
+    _subcontroller_label = "fp"
     _subcontroller_cls = FrameProcessorController
 
     def _collect_commands(
@@ -131,11 +131,11 @@ class FrameProcessorAdapterController(OdinDataAdapterController):
 
     @cached_property
     def _start_writing_commands(self):
-        return self._collect_commands((re.compile(r"[0-9]+"), "HDF"), "start_writing")
+        return self._collect_commands((re.compile(r"[0-9]+"), "hdf"), "start_writing")
 
     @cached_property
     def _stop_writing_commands(self):
-        return self._collect_commands((re.compile(r"[0-9]+"), "HDF"), "stop_writing")
+        return self._collect_commands((re.compile(r"[0-9]+"), "hdf"), "stop_writing")
 
     def _create_vds(self):
         if self.enable_vds_creation.get():

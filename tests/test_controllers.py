@@ -253,7 +253,7 @@ async def test_controller_initialise_short_adapter_name_is_uppercased(
 
     await controller.initialise()
 
-    assert "FP" in controller.sub_controllers
+    assert "fp" in controller.sub_controllers
     assert "xspress" in controller.sub_controllers
 
 
@@ -300,7 +300,7 @@ async def test_fp_create_plugin_sub_controllers(mocker: MockerFixture):
     controllers = fpc.sub_controllers
     match controllers:
         case {
-            "HDF": FrameProcessorPluginController(
+            "hdf": FrameProcessorPluginController(
                 parameters=[
                     OdinParameter(
                         uri=["status", "hdf", "frames_written"],
@@ -312,7 +312,7 @@ async def test_fp_create_plugin_sub_controllers(mocker: MockerFixture):
                 ]
             )
         }:
-            sub_controllers = controllers["HDF"].sub_controllers
+            sub_controllers = controllers["hdf"].sub_controllers
             assert "DS" in sub_controllers
             assert isinstance(sub_controllers["DS"], OdinSubController)
             assert sub_controllers["DS"].parameters == [
@@ -402,25 +402,25 @@ async def test_status_summary_attribute_io():
     hdf1_controller = Controller()
     hdf2_controller = Controller()
 
-    controller.add_sub_controller("FP", fpa_controller)
-    fpa_controller.add_sub_controller("FP0", fp1_controller)
-    fpa_controller.add_sub_controller("FP1", fp2_controller)
-    fp1_controller.add_sub_controller("HDF", hdf1_controller)
-    fp2_controller.add_sub_controller("HDF", hdf2_controller)
+    controller.add_sub_controller("fp", fpa_controller)
+    fpa_controller.add_sub_controller("fp0", fp1_controller)
+    fpa_controller.add_sub_controller("fp1", fp2_controller)
+    fp1_controller.add_sub_controller("hdf", hdf1_controller)
+    fp2_controller.add_sub_controller("hdf", hdf2_controller)
 
     io = StatusSummaryAttributeIO()
 
     frames_written = AttrR(
         Int(),
         io_ref=StatusSummaryAttributeIORef(
-            ["FP", re.compile("FP*"), "HDF"], "frames_written", partial(sum, start=0)
+            ["fp", re.compile("fp*"), "hdf"], "frames_written", partial(sum, start=0)
         ),
     )
     controller.frames_written = frames_written
     writing = AttrR(
         Bool(),
         io_ref=StatusSummaryAttributeIORef(
-            ["FP", re.compile("FP*"), ("HDF",)], "writing", any
+            ["fp", re.compile("fp*"), ("hdf",)], "writing", any
         ),
     )
     controller.writing = writing
@@ -445,7 +445,7 @@ async def test_status_summary_attribute_io():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("mock_sub_controller", ("FP", ("FP",), re.compile("FP")))
+@pytest.mark.parametrize("mock_sub_controller", ("fp", ("fp",), re.compile("fp")))
 async def test_status_summary_updater_raise_exception_if_controller_not_found(
     mock_sub_controller, mocker: MockerFixture
 ):
@@ -495,7 +495,7 @@ async def test_frame_processor_start_and_stop_writing(mocker: MockerFixture):
     await fpc._create_plugin_sub_controllers(["hdf"])
 
     # Mock the commands to check calls
-    hdf = fpc.sub_controllers["HDF"]
+    hdf = fpc.sub_controllers["hdf"]
     hdf.start_writing = mocker.AsyncMock()  # type: ignore
     hdf.stop_writing = mocker.AsyncMock()  # type: ignore
 
@@ -504,7 +504,7 @@ async def test_frame_processor_start_and_stop_writing(mocker: MockerFixture):
 
     fpac[0] = fpc
 
-    # Top level FP commands should collect and call lower level commands
+    # Top level fp commands should collect and call lower level commands
     await fpac.start_writing()
     await fpac.stop_writing()
     assert len(hdf.start_writing.mock_calls) == 1  # type: ignore
@@ -521,7 +521,7 @@ async def test_vds_generator_created_on_start_writing(mocker: MockerFixture):
     )
     await fpc._create_plugin_sub_controllers(["hdf"])
 
-    hdf = fpc.sub_controllers["HDF"]
+    hdf = fpc.sub_controllers["hdf"]
     hdf.start_writing = mocker.AsyncMock()
     hdf.stop_writing = mocker.AsyncMock()
 
@@ -545,7 +545,7 @@ async def test_vds_created_on_stop_writing_if_vds_enabled(mocker: MockerFixture)
     )
     await fpc._create_plugin_sub_controllers(["hdf"])
 
-    hdf = fpc.sub_controllers["HDF"]
+    hdf = fpc.sub_controllers["hdf"]
     hdf.start_writing = mocker.AsyncMock()
     hdf.stop_writing = mocker.AsyncMock()
 
