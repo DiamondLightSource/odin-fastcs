@@ -12,7 +12,11 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 description = "FastCS support for the Odin detector software framework"
-dependencies = ["aiohttp", "fastcs[epicsca]~=0.14.0", "h5py"]
+dependencies = [
+    "aiohttp",
+    "fastcs[epicsca] @ git+https://github.com/DiamondLightSource/fastcs.git@ca_aliases",
+    "h5py",
+]
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.md"
