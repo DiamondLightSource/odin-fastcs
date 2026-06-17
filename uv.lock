@@ -828,8 +828,8 @@ wheels = [
 
 [[package]]
 name = "fastcs"
-version = "0.14.1.dev3+g6a901c7e1"
-source = { git = "https://github.com/DiamondLightSource/fastcs.git?rev=ca_aliases#6a901c7e1741f0e185620b54a36f371f3f81926c" }
+version = "0.14.1"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aioserial" },
     { name = "fastapi", extra = ["standard"] },
@@ -840,6 +840,10 @@ dependencies = [
     { name = "pygelf" },
     { name = "ruamel-yaml" },
     { name = "stdio-socket" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/fe/89/801be8d791c07b3a1b260a07d282e6c9ffde5c0a26846065611a655d307e/fastcs-0.14.1.tar.gz", hash = "sha256:3d1c9d3ff300db53c7f421346a6614d50668d02604958275df403e0261404506", size = 417221, upload-time = "2026-06-17T10:14:07.71Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/81/5a/a6f230e82a7f4f4f537aa39af5751dc33151334771c032ea336a02189e91/fastcs-0.14.1-py3-none-any.whl", hash = "sha256:542817b966410ca3e320c1477ea52f0bf16451fe15a1f3bb90d9c7b654bb7922", size = 94593, upload-time = "2026-06-17T10:14:06.327Z" },
 ]
 
 [package.optional-dependencies]
@@ -890,7 +894,7 @@ odin = [
 [package.metadata]
 requires-dist = [
     { name = "aiohttp" },
-    { name = "fastcs", extras = ["epicsca"], git = "https://github.com/DiamondLightSource/fastcs.git?rev=ca_aliases" },
+    { name = "fastcs", extras = ["epicsca"], specifier = "~=0.14.1" },
     { name = "h5py" },
 ]
 
