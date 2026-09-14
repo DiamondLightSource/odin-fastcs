@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=schema.json
+controllers:
+  - id: ODIN
+    type: fastcs_odin.OdinController
+    connection_settings:
+      ip: "localhost"
+      port: 8888
+transport:
+  - epicsca: {}
+    gui:
+      title: "Odin - ODIN"
+      output_dir: ./opi/

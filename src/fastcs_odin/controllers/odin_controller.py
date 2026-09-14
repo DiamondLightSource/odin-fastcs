@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from fastcs.attributes import AttributeIO
 from fastcs.connections.ip_connection import IPConnectionSettings
 from fastcs.controllers import BaseController, Controller
@@ -25,13 +27,20 @@ from fastcs_odin.util import (
 )
 
 
+@dataclass
+class OdinControllerSettings:
+    connection_settings: IPConnectionSettings
+
+
 class OdinController(Controller):
     """A root ``Controller`` for an odin control server."""
 
     API_PREFIX = "api/0.1"
 
-    def __init__(self, settings: IPConnectionSettings) -> None:
-        self.connection = HTTPConnection(settings.ip, settings.port)
+    def __init__(self, settings: OdinControllerSettings) -> None:
+        self.connection = HTTPConnection(
+            settings.connection_settings.ip, settings.connection_settings.port
+        )
         self._ios: list[AttributeIO] = [
             ParameterTreeAttributeIO(self.connection),
             StatusSummaryAttributeIO(),

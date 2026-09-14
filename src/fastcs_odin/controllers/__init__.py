@@ -1,4 +1,5 @@
 from .odin_controller import OdinController as OdinController
+from .odin_controller import OdinControllerSettings as OdinControllerSettings
 from .odin_controller import OdinParameter as OdinParameter
 from .odin_data.frame_processor import (
     FrameProcessorAdapterController as FrameProcessorAdapterController,

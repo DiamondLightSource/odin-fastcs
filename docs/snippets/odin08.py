@@ -6,10 +6,10 @@ from fastcs.control_system import FastCS
 from fastcs.controllers import BaseController
 from fastcs.datatypes import Bool, Int, String
 from fastcs.methods import Command, command
-from fastcs.transports.epics import EpicsGUIOptions, EpicsIOCOptions
+from fastcs.transports.epics import EpicsCAOptions, EpicsGUIOptions
 from fastcs.transports.epics.ca.transport import EpicsCATransport
 
-from fastcs_odin.controllers import OdinController
+from fastcs_odin.controllers import OdinController, OdinControllerSettings
 from fastcs_odin.controllers.odin_adapter_controller import OdinAdapterController
 from fastcs_odin.controllers.odin_data.frame_processor import (
     FrameProcessorAdapterController,
@@ -101,13 +101,18 @@ class ExampleOdinController(OdinController):
                 )
 
 
+controller = ExampleOdinController(
+    OdinControllerSettings(IPConnectionSettings("127.0.0.1", 8888))
+)
+controller.set_path(["EXAMPLE"])
+
 fastcs = FastCS(
-    ExampleOdinController(IPConnectionSettings("127.0.0.1", 8888)),
+    controller,
     [
         EpicsCATransport(
-            EpicsIOCOptions(pv_prefix="EXAMPLE"),
+            EpicsCAOptions(),
             gui=EpicsGUIOptions(
-                output_path=Path.cwd() / "opis" / "example.bob",
+                output_dir=Path.cwd() / "opis" / "example.bob",
                 title="Odin Example Detector",
             ),
         )

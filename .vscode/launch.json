@@ -8,13 +8,15 @@
             "name": "Odin IOC",
             "type": "debugpy",
             "request": "launch",
-            "module": "fastcs_odin",
             "justMyCode": false,
-            "console": "integratedTerminal",
+            "module": "fastcs_odin",
             "args": [
-                "ioc",
-                "ODIN"
-            ]
+                "run",
+                "${workspaceFolder:fastcs-odin}/src/fastcs_odin/fastcs.yaml",
+                "--log-level",
+                "TRACE",
+            ],
+            "console": "integratedTerminal",
         },
         {
             "name": "Odin Asyncio",

@@ -4,21 +4,24 @@ from fastcs.attributes import AttrRW
 from fastcs.control_system import FastCS
 from fastcs.controllers import Controller
 from fastcs.datatypes import Int
-from fastcs.transports.epics import EpicsGUIOptions, EpicsIOCOptions
-from fastcs.transports.epics.ca.transport import EpicsCATransport
+from fastcs.transports.epics import EpicsGUIOptions
+from fastcs.transports.epics.ca.transport import EpicsCAOptions, EpicsCATransport
 
 
 class ExampleOdinController(Controller):
     foo = AttrRW(Int())
 
 
+controller = ExampleOdinController()
+controller.set_path(["EXAMPLE"])
+
 fastcs = FastCS(
     ExampleOdinController(),
     [
         EpicsCATransport(
-            EpicsIOCOptions(pv_prefix="EXAMPLE"),
+            EpicsCAOptions(),
             gui=EpicsGUIOptions(
-                output_path=Path.cwd() / "opis" / "example.bob",
+                output_dir=Path.cwd() / "opis",
                 title="Odin Example Detector",
             ),
         )

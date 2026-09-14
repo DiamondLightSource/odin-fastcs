@@ -9,12 +9,11 @@ from fastcs.controllers import BaseController
 from fastcs.datatypes import Bool, Int, String, Waveform
 from fastcs.logging import LogLevel, configure_logging, logger
 from fastcs.methods import Command, command, scan
-from fastcs.transports.epics import EpicsGUIOptions, EpicsIOCOptions
+from fastcs.transports.epics import EpicsCAOptions, EpicsGUIOptions
 from fastcs.transports.epics.ca.transport import EpicsCATransport
-from fastcs.transports.epics.pva.transport import EpicsPVATransport
 from PIL import Image
 
-from fastcs_odin.controllers import OdinController
+from fastcs_odin.controllers import OdinController, OdinControllerSettings
 from fastcs_odin.controllers.odin_adapter_controller import OdinAdapterController
 from fastcs_odin.controllers.odin_data.frame_processor import (
     FrameProcessorAdapterController,
@@ -127,19 +126,21 @@ class ExampleOdinController(OdinController):
 
 configure_logging(LogLevel.TRACE)
 
+controller = ExampleOdinController(
+    OdinControllerSettings(IPConnectionSettings("127.0.0.1", 8888))
+)
+controller.set_path(["EXAMPLE"])
+
 fastcs = FastCS(
-    ExampleOdinController(IPConnectionSettings("127.0.0.1", 8888)),
+    controller,
     [
         EpicsCATransport(
-            EpicsIOCOptions(pv_prefix="EXAMPLE"),
-        ),
-        EpicsPVATransport(
-            EpicsIOCOptions(pv_prefix="EXAMPLE"),
+            EpicsCAOptions(),
             gui=EpicsGUIOptions(
-                output_path=Path.cwd() / "opis" / "example.bob",
+                output_dir=Path.cwd() / "opis" / "example.bob",
                 title="Odin Example Detector",
             ),
-        ),
+        )
     ],
 )
 

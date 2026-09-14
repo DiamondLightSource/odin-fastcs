@@ -4,23 +4,28 @@ from fastcs.attributes import AttrRW
 from fastcs.connections import IPConnectionSettings
 from fastcs.control_system import FastCS
 from fastcs.datatypes import Int
-from fastcs.transports.epics import EpicsGUIOptions, EpicsIOCOptions
-from fastcs.transports.epics.ca.transport import EpicsCATransport
+from fastcs.transports.epics import EpicsGUIOptions
+from fastcs.transports.epics.ca.transport import EpicsCAOptions, EpicsCATransport
 
-from fastcs_odin.controllers import OdinController
+from fastcs_odin.controllers import OdinController, OdinControllerSettings
 
 
 class ExampleOdinController(OdinController):
     foo = AttrRW(Int())
 
 
+controller = ExampleOdinController(
+    OdinControllerSettings(IPConnectionSettings("127.0.0.1", 8888))
+)
+controller.set_path(["EXAMPLE"])
+
 fastcs = FastCS(
-    ExampleOdinController(IPConnectionSettings("127.0.0.1", 8888)),
+    controller,
     [
         EpicsCATransport(
-            EpicsIOCOptions(pv_prefix="EXAMPLE"),
+            EpicsCAOptions(),
             gui=EpicsGUIOptions(
-                output_path=Path.cwd() / "opis" / "example.bob",
+                output_dir=Path.cwd() / "opis",
                 title="Odin Example Detector",
             ),
         )

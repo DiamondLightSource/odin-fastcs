@@ -12,7 +12,10 @@ from fastcs.datatypes import Bool, Float, Int, String
 from pytest_mock import MockerFixture
 
 from fastcs_odin.controllers.odin_adapter_controller import OdinAdapterController
-from fastcs_odin.controllers.odin_controller import OdinController
+from fastcs_odin.controllers.odin_controller import (
+    OdinController,
+    OdinControllerSettings,
+)
 from fastcs_odin.controllers.odin_data.frame_processor import (
     FrameProcessorAdapterController,
     FrameProcessorController,
@@ -143,7 +146,7 @@ async def test_fp_process_parameters_during_initialise(mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_create_adapter_controller(mocker: MockerFixture):
-    controller = OdinController(IPConnectionSettings("", 0))
+    controller = OdinController(OdinControllerSettings(IPConnectionSettings("", 0)))
     controller.connection = mocker.AsyncMock()
     parameters = [
         OdinParameter(
@@ -218,7 +221,7 @@ async def test_controller_initialise(
         "fastcs_odin.controllers.odin_data.odin_data_adapter.initialise_summary_attributes"
     )
 
-    controller = OdinController(IPConnectionSettings("", 0))
+    controller = OdinController(OdinControllerSettings(IPConnectionSettings("", 0)))
 
     controller.connection = mocker.AsyncMock()
     controller.connection.open = mocker.MagicMock()
@@ -242,7 +245,7 @@ async def test_controller_initialise_short_adapter_name_is_uppercased(
         "fastcs_odin.controllers.odin_data.odin_data_adapter.initialise_summary_attributes"
     )
 
-    controller = OdinController(IPConnectionSettings("", 0))
+    controller = OdinController(OdinControllerSettings(IPConnectionSettings("", 0)))
     controller.connection = mocker.AsyncMock()
     controller.connection.open = mocker.MagicMock()
     controller.connection.get.side_effect = [
