@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Creating an Odin Detector Driver &#8212; fastcs-odin 0.9.1.dev7+gcb2ed20f7 documentation</title>
+    <title>Creating an Odin Detector Driver &#8212; fastcs-odin 0.9.1.dev8+g2c32e2fe9 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=43b7474a"></script>
+    <script src="../_static/documentation_options.js?v=ced313b5"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -555,18 +555,19 @@ prefix should be unique.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Int</span>
-<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsIOCOptions</span>
-</span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsCATransport</span>
+</span><span class="hll">
 </span>
-
 <span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
     <span class="n">foo</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span><span class="n">Int</span><span class="p">())</span>
 
 
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">()</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
 <span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
-    <span class="n">ExampleOdinController</span><span class="p">(),</span>
-<span class="hll">    <span class="p">[</span><span class="n">EpicsCATransport</span><span class="p">(</span><span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">))],</span>
-</span><span class="p">)</span>
+<span class="hll">    <span class="n">controller</span><span class="p">,</span>
+</span>    <span class="p">[</span><span class="n">EpicsCATransport</span><span class="p">(</span><span class="n">EpicsCAOptions</span><span class="p">())],</span>
+<span class="p">)</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
@@ -602,23 +603,26 @@ EXAMPLE:Foo_RBV<span class="w">            </span><span class="m">5</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Int</span>
-<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span><span class="p">,</span> <span class="n">EpicsIOCOptions</span>
-</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsCATransport</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
     <span class="n">foo</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span><span class="n">Int</span><span class="p">())</span>
 
 
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">()</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
 <span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
     <span class="n">ExampleOdinController</span><span class="p">(),</span>
-    <span class="p">[</span>
-        <span class="n">EpicsCATransport</span><span class="p">(</span>
-            <span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">),</span>
-<span class="hll">            <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
-</span><span class="hll">                <span class="n">output_path</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
-</span><span class="hll">                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
-</span>            <span class="p">),</span>
+<span class="hll">    <span class="p">[</span>
+</span><span class="hll">        <span class="n">EpicsCATransport</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
+</span>            <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
         <span class="p">)</span>
     <span class="p">],</span>
 <span class="p">)</span>
@@ -644,23 +648,28 @@ creates sub controllers and attributes for each one automatically.</p>
 <span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.connections</span><span class="w"> </span><span class="kn">import</span> <span class="n">IPConnectionSettings</span>
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Int</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span><span class="p">,</span> <span class="n">EpicsIOCOptions</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsCATransport</span>
 
-<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
 </span>
 
 <span class="hll"><span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">OdinController</span><span class="p">):</span>
 </span>    <span class="n">foo</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span><span class="n">Int</span><span class="p">())</span>
 
 
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+<span class="hll">    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+</span><span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
 <span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
-<span class="hll">    <span class="n">ExampleOdinController</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">)),</span>
-</span>    <span class="p">[</span>
+    <span class="n">controller</span><span class="p">,</span>
+    <span class="p">[</span>
         <span class="n">EpicsCATransport</span><span class="p">(</span>
-            <span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">),</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
             <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
-                <span class="n">output_path</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span><span class="p">,</span>
                 <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
@@ -744,10 +753,10 @@ completed.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.connections</span><span class="w"> </span><span class="kn">import</span> <span class="n">IPConnectionSettings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
 <span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span>
-</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span><span class="p">,</span> <span class="n">EpicsIOCOptions</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.config_fan_sender_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigFanAttributeIORef</span>
 <span class="hll">
 </span>
@@ -771,13 +780,18 @@ completed.</p>
 </span><span class="hll">        <span class="p">)</span>
 </span><span class="hll">
 </span><span class="hll">
-</span><span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
-    <span class="n">ExampleOdinController</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">)),</span>
+</span><span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
+    <span class="n">controller</span><span class="p">,</span>
     <span class="p">[</span>
         <span class="n">EpicsCATransport</span><span class="p">(</span>
-            <span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">),</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
             <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
-                <span class="n">output_path</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
                 <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
@@ -824,10 +838,10 @@ instantiated.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
 <span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseController</span>
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span><span class="p">,</span> <span class="n">EpicsIOCOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
 <span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
 </span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
 </span><span class="hll">    <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
@@ -889,13 +903,18 @@ instantiated.</p>
 </span><span class="hll">                <span class="p">)</span>
 </span><span class="hll">
 </span><span class="hll">
-</span><span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
-    <span class="n">ExampleOdinController</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">)),</span>
+</span><span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
+    <span class="n">controller</span><span class="p">,</span>
     <span class="p">[</span>
         <span class="n">EpicsCATransport</span><span class="p">(</span>
-            <span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">),</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
             <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
-                <span class="n">output_path</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
                 <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
@@ -938,10 +957,10 @@ along with <code class="docutils literal notranslate"><span class="pre">acquire<
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseController</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span>
 <span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">command</span>
-</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span><span class="p">,</span> <span class="n">EpicsIOCOptions</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
@@ -1016,13 +1035,18 @@ along with <code class="docutils literal notranslate"><span class="pre">acquire<
                 <span class="p">)</span>
 
 
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
 <span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
-    <span class="n">ExampleOdinController</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">)),</span>
+    <span class="n">controller</span><span class="p">,</span>
     <span class="p">[</span>
         <span class="n">EpicsCATransport</span><span class="p">(</span>
-            <span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">),</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
             <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
-                <span class="n">output_path</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
                 <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
@@ -1059,10 +1083,10 @@ controllers.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseController</span>
 <span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span>
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">command</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span><span class="p">,</span> <span class="n">EpicsIOCOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
@@ -1154,13 +1178,18 @@ controllers.</p>
                 <span class="p">)</span>
 
 
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
 <span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
-    <span class="n">ExampleOdinController</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">)),</span>
+    <span class="n">controller</span><span class="p">,</span>
     <span class="p">[</span>
         <span class="n">EpicsCATransport</span><span class="p">(</span>
-            <span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">),</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
             <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
-                <span class="n">output_path</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
                 <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
@@ -1191,10 +1220,10 @@ before starting the detector.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseController</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">command</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span><span class="p">,</span> <span class="n">EpicsIOCOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
@@ -1288,13 +1317,18 @@ before starting the detector.</p>
                 <span class="p">)</span>
 
 
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
 <span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
-    <span class="n">ExampleOdinController</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">)),</span>
+    <span class="n">controller</span><span class="p">,</span>
     <span class="p">[</span>
         <span class="n">EpicsCATransport</span><span class="p">(</span>
-            <span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">),</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
             <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
-                <span class="n">output_path</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
                 <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
@@ -1324,11 +1358,11 @@ query the live view adapter for images.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseController</span>
 <span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Waveform</span>
 </span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">scan</span>
-</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span><span class="p">,</span> <span class="n">EpicsIOCOptions</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
 <span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
 </span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
@@ -1437,13 +1471,18 @@ query the live view adapter for images.</p>
                 <span class="p">)</span>
 
 
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
 <span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
-    <span class="n">ExampleOdinController</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">)),</span>
+    <span class="n">controller</span><span class="p">,</span>
     <span class="p">[</span>
         <span class="n">EpicsCATransport</span><span class="p">(</span>
-            <span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">),</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
             <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
-                <span class="n">output_path</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
                 <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
@@ -1480,12 +1519,11 @@ both transports simultaneously. PVA supports 2D array attributes, so the
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseController</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Waveform</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">scan</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span><span class="p">,</span> <span class="n">EpicsIOCOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
-<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.pva.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsPVATransport</span>
-</span><span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
@@ -1594,20 +1632,22 @@ both transports simultaneously. PVA supports 2D array attributes, so the
                 <span class="p">)</span>
 
 
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
 <span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
-    <span class="n">ExampleOdinController</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">)),</span>
-    <span class="p">[</span>
-        <span class="n">EpicsCATransport</span><span class="p">(</span>
-            <span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">),</span>
-        <span class="p">),</span>
-<span class="hll">        <span class="n">EpicsPVATransport</span><span class="p">(</span>
-</span><span class="hll">            <span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">),</span>
+    <span class="n">controller</span><span class="p">,</span>
+<span class="hll">    <span class="p">[</span>
+</span><span class="hll">        <span class="n">EpicsCATransport</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
 </span><span class="hll">            <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
-</span><span class="hll">                <span class="n">output_path</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
 </span><span class="hll">                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
 </span><span class="hll">            <span class="p">),</span>
-</span><span class="hll">        <span class="p">),</span>
-</span>    <span class="p">],</span>
+</span>        <span class="p">)</span>
+    <span class="p">],</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -1640,12 +1680,11 @@ writing starts and stops.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Waveform</span>
 <span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogLevel</span><span class="p">,</span> <span class="n">configure_logging</span><span class="p">,</span> <span class="n">logger</span>
 </span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">scan</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span><span class="p">,</span> <span class="n">EpicsIOCOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.pva.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsPVATransport</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
@@ -1691,17 +1730,17 @@ writing starts and stops.</p>
 
     <span class="nd">@command</span><span class="p">()</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="hll">        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting writing&quot;</span><span class="p">)</span>
-</span>        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">start_writing</span><span class="p">()</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">writing</span><span class="o">.</span><span class="n">wait_for_value</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting writing&quot;</span><span class="p">)</span>
+<span class="hll">        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">start_writing</span><span class="p">()</span>
+</span>        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">writing</span><span class="o">.</span><span class="n">wait_for_value</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
     <span class="nd">@command</span><span class="p">()</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="hll">        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Stopping writing&quot;</span><span class="p">)</span>
-</span>        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">stop_writing</span><span class="p">()</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Stopping writing&quot;</span><span class="p">)</span>
+<span class="hll">        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">stop_writing</span><span class="p">()</span>
+</span>        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialise</span><span class="p">()</span>
@@ -1756,21 +1795,23 @@ writing starts and stops.</p>
                 <span class="p">)</span>
 
 
-<span class="hll"><span class="n">configure_logging</span><span class="p">(</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">TRACE</span><span class="p">)</span>
-</span>
+<span class="n">configure_logging</span><span class="p">(</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">TRACE</span><span class="p">)</span>
+<span class="hll">
+</span><span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
 <span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
-    <span class="n">ExampleOdinController</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">)),</span>
+    <span class="n">controller</span><span class="p">,</span>
     <span class="p">[</span>
         <span class="n">EpicsCATransport</span><span class="p">(</span>
-            <span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">),</span>
-        <span class="p">),</span>
-        <span class="n">EpicsPVATransport</span><span class="p">(</span>
-            <span class="n">EpicsIOCOptions</span><span class="p">(</span><span class="n">pv_prefix</span><span class="o">=</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">),</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
             <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
-                <span class="n">output_path</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
                 <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
             <span class="p">),</span>
-        <span class="p">),</span>
+        <span class="p">)</span>
     <span class="p">],</span>
 <span class="p">)</span>
 
