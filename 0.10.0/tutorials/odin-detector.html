@@ -1,0 +1,1976 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Creating an Odin Detector Driver &#8212; fastcs-odin 0.10.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=82662543"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/odin-detector';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/fastcs-odin/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.10.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/dls-logo.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="How-to Guides" href="../how-to.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.10.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/dls-logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/dls-logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">fastcs-odin</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../how-to.html">
+    How-to Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../explanations.html">
+    Explanations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/DiamondLightSource/fastcs-odin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/fastcs-odin" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../how-to.html">
+    How-to Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../explanations.html">
+    Explanations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/DiamondLightSource/fastcs-odin" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/fastcs-odin" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Creating an Odin Detector Driver</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../tutorials.html" class="nav-link">Tutorials</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Creating an Odin Detector Driver</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="creating-an-odin-detector-driver">
+<h1>Creating an Odin Detector Driver<a class="headerlink" href="#creating-an-odin-detector-driver" title="Link to this heading">#</a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<p>This tutorial walks through creating a FastCS driver for a detector controlled by
+<a class="reference external" href="https://github.com/odin-detector">Odin</a>. The
+<code class="docutils literal notranslate"><span class="pre">fastcs-odin</span></code> package builds on FastCS to provide an <code class="docutils literal notranslate"><span class="pre">OdinController</span></code> that introspects
+an Odin server and creates sub controllers and attributes for each adapter it finds.</p>
+<p>This tutorial will walk through the creation of a driver that can:</p>
+<ul class="simple">
+<li><p>Introspect an Odin deployment and expose all parameters as PVs</p></li>
+<li><p>Configure and run detector acquisitions from a single top-level API</p></li>
+<li><p>Display a live view of captured frames</p></li>
+<li><p>Use logging and tracing to debug the data path</p></li>
+</ul>
+</section>
+<section id="set-up">
+<h2>Set Up<a class="headerlink" href="#set-up" title="Link to this heading">#</a></h2>
+<section id="odin-deployment">
+<h3>Odin Deployment<a class="headerlink" href="#odin-deployment" title="Link to this heading">#</a></h3>
+<p>The odin-data-example deployment container should be started:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w"> </span>--security-opt<span class="w"> </span><span class="nv">label</span><span class="o">=</span>disable<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/dev/shm:/dev/shm<span class="w"> </span>-v<span class="w"> </span>/tmp:/tmp<span class="w"> </span>--net<span class="o">=</span>host<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>ghcr.io/odin-detector/odin-data-example-runtime:0.2.3
+</pre></div>
+</div>
+<p>All applications should start without errors.</p>
+</section>
+<section id="python-environment">
+<h3>Python Environment<a class="headerlink" href="#python-environment" title="Link to this heading">#</a></h3>
+<p>Clone <a class="reference external" href="https://github.com/DiamondLightSource/fastcs-odin">fastcs-odin</a> and open it in
+VS Code. Reopen in the dev container and install the dependencies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;fastcs[epics]&#39;</span><span class="w"> </span>pillow<span class="w"> </span>aioca
+</pre></div>
+</div>
+<p>An <code class="docutils literal notranslate"><span class="pre">example.py</span></code> file should be created in the project root.</p>
+</section>
+<section id="phoebus">
+<h3>Phoebus<a class="headerlink" href="#phoebus" title="Link to this heading">#</a></h3>
+<p>A <a class="reference external" href="https://github.com/epics-containers/ec-phoebus">Phoebus container</a> should be started.
+A settings file will likely be needed to configure name servers for both PVA and CA.</p>
+</section>
+</section>
+<section id="a-minimal-controller">
+<h2>A Minimal Controller<a class="headerlink" href="#a-minimal-controller" title="Link to this heading">#</a></h2>
+<p>The core of a FastCS device driver is the <code class="docutils literal notranslate"><span class="pre">Controller</span></code>. An <code class="docutils literal notranslate"><span class="pre">ExampleOdinController</span></code>
+should be created that inherits from <code class="docutils literal notranslate"><span class="pre">Controller</span></code> with a single read-write integer
+attribute, and launched with <code class="docutils literal notranslate"><span class="pre">FastCS</span></code>.</p>
+<div class="dropdown hint admonition">
+<p class="admonition-title">Code 1</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrRW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Int</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span><span class="n">Int</span><span class="p">())</span>
+
+
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span><span class="n">ExampleOdinController</span><span class="p">(),</span> <span class="p">[])</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>The application will start and drop into an interactive shell. The attribute can be read
+and written from the shell:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">controller</span><span class="o">.</span><span class="n">foo</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="mi">0</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="k">await</span> <span class="n">controller</span><span class="o">.</span><span class="n">foo</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">controller</span><span class="o">.</span><span class="n">foo</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is also a helper if there are errors about running on the wrong event loop:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">run</span><span class="p">(</span><span class="n">controller</span><span class="o">.</span><span class="n">foo</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="adding-an-epics-transport">
+<h2>Adding an EPICS Transport<a class="headerlink" href="#adding-an-epics-transport" title="Link to this heading">#</a></h2>
+<p>An EPICS CA transport can be added to expose the controller’s attributes as PVs. The PV
+prefix should be unique.</p>
+<div class="dropdown hint admonition">
+<p class="admonition-title">Code 2</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrRW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Int</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsCATransport</span>
+</span><span class="hll">
+</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span><span class="n">Int</span><span class="p">())</span>
+
+
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">()</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
+<span class="hll">    <span class="n">controller</span><span class="p">,</span>
+</span>    <span class="p">[</span><span class="n">EpicsCATransport</span><span class="p">(</span><span class="n">EpicsCAOptions</span><span class="p">())],</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>The IOC will now be serving PVs. They can be listed in the interactive shell and
+interacted with from a terminal:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">dbl</span><span class="p">()</span>
+<span class="n">EXAMPLE</span><span class="p">:</span><span class="n">Foo_RBV</span>
+<span class="n">EXAMPLE</span><span class="p">:</span><span class="n">Foo</span>
+<span class="n">EXAMPLE</span><span class="p">:</span><span class="n">PVI_PV</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>❯<span class="w"> </span>caget<span class="w"> </span>EXAMPLE:Foo_RBV
+EXAMPLE:Foo_RBV<span class="w">            </span><span class="m">1</span>
+❯<span class="w"> </span>caput<span class="w"> </span>EXAMPLE:Foo<span class="w"> </span><span class="m">5</span>
+Old<span class="w"> </span>:<span class="w"> </span>EXAMPLE:Foo<span class="w">                </span><span class="m">1</span>
+New<span class="w"> </span>:<span class="w"> </span>EXAMPLE:Foo<span class="w">                </span><span class="m">5</span>
+❯<span class="w"> </span>caget<span class="w"> </span>EXAMPLE:Foo_RBV
+EXAMPLE:Foo_RBV<span class="w">            </span><span class="m">5</span>
+</pre></div>
+</div>
+</section>
+<section id="generating-a-phoebus-ui">
+<h2>Generating a Phoebus UI<a class="headerlink" href="#generating-a-phoebus-ui" title="Link to this heading">#</a></h2>
+<p>FastCS can be configured to generate a Phoebus <code class="docutils literal notranslate"><span class="pre">.bob</span></code> file for a UI.</p>
+<div class="dropdown hint admonition">
+<p class="admonition-title">Code 3</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrRW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Int</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsCATransport</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
+    <span class="n">foo</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span><span class="n">Int</span><span class="p">())</span>
+
+
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">()</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
+    <span class="n">ExampleOdinController</span><span class="p">(),</span>
+<span class="hll">    <span class="p">[</span>
+</span><span class="hll">        <span class="n">EpicsCATransport</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
+</span>            <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">opis/example.bob</span></code> should appear and can be opened in Phoebus with
+File &gt; Open &gt; example.bob. Values can be set from the UI to verify it works.</p>
+</section>
+<section id="connecting-to-odin">
+<h2>Connecting to Odin<a class="headerlink" href="#connecting-to-odin" title="Link to this heading">#</a></h2>
+<p>The controller should be updated to inherit from <code class="docutils literal notranslate"><span class="pre">OdinController</span></code> instead of
+<code class="docutils literal notranslate"><span class="pre">Controller</span></code>. This controller connects to an Odin server, introspects all of its adapters, and
+creates sub controllers and attributes for each one automatically.</p>
+<div class="dropdown hint admonition">
+<p class="admonition-title">Code 4</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrRW</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.connections</span><span class="w"> </span><span class="kn">import</span> <span class="n">IPConnectionSettings</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Int</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsGUIOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsCATransport</span>
+
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
+</span>
+
+<span class="hll"><span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">OdinController</span><span class="p">):</span>
+</span>    <span class="n">foo</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span><span class="n">Int</span><span class="p">())</span>
+
+
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+<span class="hll">    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+</span><span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
+    <span class="n">controller</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="n">EpicsCATransport</span><span class="p">(</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
+            <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Warnings about parameters failing to be read are expected for some adapter parameters.</p>
+</div>
+<p>The PVs can be listed in the interactive shell to see what has been created:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">dbl</span><span class="p">()</span>
+<span class="n">EXAMPLE</span><span class="p">:</span><span class="n">DETECTOR</span><span class="p">:</span><span class="n">ConfigExposureTime_RBV</span>
+<span class="o">...</span>
+<span class="n">EXAMPLE</span><span class="p">:</span><span class="n">FP</span><span class="p">:</span><span class="mi">0</span><span class="p">:</span><span class="n">HDF</span><span class="p">:</span><span class="n">FileUseNumbers_RBV</span>
+<span class="o">...</span>
+<span class="n">EXAMPLE</span><span class="p">:</span><span class="n">FR</span><span class="p">:</span><span class="mi">2</span><span class="p">:</span><span class="n">DecoderEnablePacketLogging_RBV</span>
+<span class="o">...</span>
+<span class="n">EXAMPLE</span><span class="p">:</span><span class="n">DETECTOR</span><span class="p">:</span><span class="n">Start</span>
+</pre></div>
+</div>
+<p>The controller now has sub controllers for each adapter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">controller</span><span class="o">.</span><span class="n">sub_controllers</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+<span class="p">{</span><span class="s1">&#39;DETECTOR&#39;</span><span class="p">:</span> <span class="n">OdinAdapterController</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">DETECTOR</span><span class="p">,</span> <span class="n">sub_controllers</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+ <span class="s1">&#39;FR&#39;</span><span class="p">:</span> <span class="n">FrameReceiverAdapterController</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">FR</span><span class="p">,</span> <span class="n">sub_controllers</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">]),</span>
+ <span class="s1">&#39;FP&#39;</span><span class="p">:</span> <span class="n">FrameProcessorAdapterController</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">FP</span><span class="p">,</span> <span class="n">sub_controllers</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">]),</span>
+ <span class="s1">&#39;LIVE&#39;</span><span class="p">:</span> <span class="n">OdinAdapterController</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">LIVE</span><span class="p">,</span> <span class="n">sub_controllers</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+ <span class="s1">&#39;SYSTEM&#39;</span><span class="p">:</span> <span class="n">OdinAdapterController</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">SYSTEM</span><span class="p">,</span> <span class="n">sub_controllers</span><span class="o">=</span><span class="kc">None</span><span class="p">)}</span>
+</pre></div>
+</div>
+<p>Sub controllers for adapters can be mapped to specific classes, or the
+fallback <code class="docutils literal notranslate"><span class="pre">OdinAdapterController</span></code>, which introspects the parameter tree and adds no
+additional logic.</p>
+<section id="phoebus-ui">
+<h3>Phoebus UI<a class="headerlink" href="#phoebus-ui" title="Link to this heading">#</a></h3>
+<p>The display can be reloaded in Phoebus (right-click &gt; Re-load display). There should now
+be buttons for each sub controller.</p>
+<ul class="simple">
+<li><p>Open the DETECTOR screen. Pressing Start should cause the frame counter to
+tick up.</p></li>
+<li><p>The FP screen has top-level attributes that read/write each individual FP instance.
+Things that must differ per instance (like <code class="docutils literal notranslate"><span class="pre">CtrlEndpoint</span></code>) are excluded. These can be
+seen in the screen for the specific instance, e.g. <code class="docutils literal notranslate"><span class="pre">FP0</span></code>.</p></li>
+<li><p>The FP screen also has PVs for the <code class="docutils literal notranslate"><span class="pre">example</span></code> dataset. These are detector-specific
+and defined in the Odin config file.</p></li>
+</ul>
+</section>
+</section>
+<section id="running-an-acquisition">
+<h2>Running an Acquisition<a class="headerlink" href="#running-an-acquisition" title="Link to this heading">#</a></h2>
+<p>An acquisition can now be run using the sub controller screens:</p>
+<ol class="arabic simple">
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">FP.FilePath</span></code> = <code class="docutils literal notranslate"><span class="pre">/tmp</span></code></p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">FP.FilePrefix</span></code> = <code class="docutils literal notranslate"><span class="pre">test</span></code></p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">FP.Frames</span></code> = <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<li><p>Press <code class="docutils literal notranslate"><span class="pre">FP.StartWriting</span></code></p></li>
+<li><p>Check that <code class="docutils literal notranslate"><span class="pre">FP.Writing</span></code> is set</p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">DETECTOR.Frames</span></code> = <code class="docutils literal notranslate"><span class="pre">10</span></code></p></li>
+<li><p>Press <code class="docutils literal notranslate"><span class="pre">DETECTOR.Start</span></code></p></li>
+<li><p>Watch <code class="docutils literal notranslate"><span class="pre">FP.FramesWritten</span></code> count up to 10 and then <code class="docutils literal notranslate"><span class="pre">FP.Writing</span></code> unset</p></li>
+</ol>
+<p>The interactive shell will show the parameters that are being set.</p>
+</section>
+<section id="improving-the-api">
+<h2>Improving the API<a class="headerlink" href="#improving-the-api" title="Link to this heading">#</a></h2>
+<p>Navigating between sub screens is fiddly. Top-level attributes can be added that fan
+values out to the relevant sub controllers. The <code class="docutils literal notranslate"><span class="pre">foo</span></code> attribute should be removed and an
+<code class="docutils literal notranslate"><span class="pre">initialise</span></code> method added to create new attributes after the Odin introspection has
+completed.</p>
+<div class="dropdown hint admonition">
+<p class="admonition-title">Code 5</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrRW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.connections</span><span class="w"> </span><span class="kn">import</span> <span class="n">IPConnectionSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.config_fan_sender_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigFanAttributeIORef</span>
+<span class="hll">
+</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">OdinController</span><span class="p">):</span>
+<span class="hll">    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="hll">        <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialise</span><span class="p">()</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">String</span><span class="p">(),</span>
+</span><span class="hll">            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_path</span><span class="p">]),</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">String</span><span class="p">(),</span>
+</span><span class="hll">            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_prefix</span><span class="p">]),</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">Int</span><span class="p">(),</span>
+</span><span class="hll">            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">(</span>
+</span><span class="hll">                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">config_frames</span><span class="p">]</span>
+</span><span class="hll">            <span class="p">),</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">
+</span><span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
+    <span class="n">controller</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="n">EpicsCATransport</span><span class="p">(</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
+            <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>After running and reloading the display, the new PVs will appear on the top screen.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">FP</span></code> and <code class="docutils literal notranslate"><span class="pre">DETECTOR</span></code> are accessed as attributes of <code class="docutils literal notranslate"><span class="pre">self</span></code>, but they are unknown to static
+type checkers because they are only created at runtime during Odin introspection. There
+will be no autocompletion for them yet.</p>
+</div>
+</section>
+<section id="type-hints-for-sub-controllers">
+<h2>Type Hints for Sub Controllers<a class="headerlink" href="#type-hints-for-sub-controllers" title="Link to this heading">#</a></h2>
+<p>FastCS validates type-hinted attributes, methods and sub controllers during
+initialisation to fail early if something is wrong. Typed sub controller classes can be
+created and type hints added to <code class="docutils literal notranslate"><span class="pre">ExampleOdinController</span></code>.</p>
+<p>An <code class="docutils literal notranslate"><span class="pre">ExampleFrameProcessorAdapterController</span></code> inheriting from
+<code class="docutils literal notranslate"><span class="pre">FrameProcessorAdapterController</span></code> with a <code class="docutils literal notranslate"><span class="pre">frames</span></code> attribute hint, and an
+<code class="docutils literal notranslate"><span class="pre">ExampleDetectorAdapterController</span></code> inheriting from <code class="docutils literal notranslate"><span class="pre">OdinAdapterController</span></code> with a
+<code class="docutils literal notranslate"><span class="pre">config_frames</span></code> attribute hint should be created.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">frames</span></code> has since been added to the parent <code class="docutils literal notranslate"><span class="pre">FrameProcessorAdapterController</span></code>, but is
+kept here as an example of the pattern that can be applied to any other attribute on the
+parent controller.</p>
+</div>
+<p>Type hints for <code class="docutils literal notranslate"><span class="pre">FP</span></code> and <code class="docutils literal notranslate"><span class="pre">DETECTOR</span></code> should be added on <code class="docutils literal notranslate"><span class="pre">ExampleOdinController</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">_create_adapter_controller</span></code> overridden so that the correct controller types are
+instantiated.</p>
+<div class="dropdown hint admonition">
+<p class="admonition-title">Code 6</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrRW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.connections</span><span class="w"> </span><span class="kn">import</span> <span class="n">IPConnectionSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseController</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
+</span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span class="hll">    <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
+</span><span class="hll"><span class="p">)</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.http_connection</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPConnection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.config_fan_sender_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigFanAttributeIORef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinParameter</span>
+<span class="hll">
+</span><span class="hll">
+</span><span class="hll"><span class="k">class</span><span class="w"> </span><span class="nc">ExampleFrameProcessorAdapterController</span><span class="p">(</span><span class="n">FrameProcessorAdapterController</span><span class="p">):</span>
+</span><span class="hll">    <span class="n">frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+</span><span class="hll">
+</span><span class="hll">
+</span><span class="hll"><span class="k">class</span><span class="w"> </span><span class="nc">ExampleDetectorAdapterController</span><span class="p">(</span><span class="n">OdinAdapterController</span><span class="p">):</span>
+</span><span class="hll">    <span class="n">config_frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+</span><span class="hll">
+</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">OdinController</span><span class="p">):</span>
+    <span class="n">FP</span><span class="p">:</span> <span class="n">ExampleFrameProcessorAdapterController</span>
+<span class="hll">    <span class="n">DETECTOR</span><span class="p">:</span> <span class="n">ExampleDetectorAdapterController</span>
+</span><span class="hll">
+</span>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialise</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_path</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_prefix</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">config_frames</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_adapter_controller</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+<span class="hll">        <span class="n">connection</span><span class="p">:</span> <span class="n">HTTPConnection</span><span class="p">,</span>
+</span><span class="hll">        <span class="n">parameters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OdinParameter</span><span class="p">],</span>
+</span><span class="hll">        <span class="n">adapter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span class="hll">        <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span class="hll">    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseController</span><span class="p">:</span>
+</span><span class="hll">        <span class="k">match</span> <span class="n">module</span><span class="p">:</span>
+</span><span class="hll">            <span class="k">case</span> <span class="s2">&quot;ExampleDetectorAdapter&quot;</span><span class="p">:</span>
+</span><span class="hll">                <span class="k">return</span> <span class="n">ExampleDetectorAdapterController</span><span class="p">(</span>
+</span><span class="hll">                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+</span><span class="hll">                <span class="p">)</span>
+</span><span class="hll">            <span class="k">case</span> <span class="s2">&quot;FrameProcessorAdapter&quot;</span><span class="p">:</span>
+</span><span class="hll">                <span class="k">return</span> <span class="n">ExampleFrameProcessorAdapterController</span><span class="p">(</span>
+</span><span class="hll">                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+</span><span class="hll">                <span class="p">)</span>
+</span><span class="hll">            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+</span><span class="hll">                <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_adapter_controller</span><span class="p">(</span>
+</span><span class="hll">                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">adapter</span><span class="p">,</span> <span class="n">module</span>
+</span><span class="hll">                <span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">
+</span><span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
+    <span class="n">controller</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="n">EpicsCATransport</span><span class="p">(</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
+            <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Without overriding <code class="docutils literal notranslate"><span class="pre">_create_adapter_controller</span></code>, the application will fail with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ne">RuntimeError</span><span class="p">:</span> <span class="n">Controller</span> <span class="s1">&#39;ExampleOdinController&#39;</span> <span class="n">introspection</span> <span class="n">of</span> <span class="n">hinted</span> <span class="n">sub</span> <span class="n">controller</span>
+<span class="s1">&#39;DETECTOR&#39;</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">match</span> <span class="n">defined</span> <span class="nb">type</span><span class="o">.</span> <span class="n">Expected</span> <span class="s1">&#39;ExampleDetectorAdapterController&#39;</span>
+<span class="n">got</span> <span class="s1">&#39;OdinAdapterController&#39;</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Type hints for attributes or sub controllers that don’t exist will also fail:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>RuntimeError: Controller `ExampleOdinController` failed to introspect hinted
+controller `FOO` during initialisation
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>RuntimeError: Controller `ExampleOdinController` failed to introspect hinted
+attribute `foo` during initialisation
+</pre></div>
+</div>
+</section>
+<section id="adding-commands">
+<h2>Adding Commands<a class="headerlink" href="#adding-commands" title="Link to this heading">#</a></h2>
+<p>Parameters can now be set from the top screen, but acquisitions cannot be run yet.
+<code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code> type hints should be added on <code class="docutils literal notranslate"><span class="pre">ExampleDetectorAdapterController</span></code>,
+along with <code class="docutils literal notranslate"><span class="pre">acquire</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code> command methods on <code class="docutils literal notranslate"><span class="pre">ExampleOdinController</span></code>.</p>
+<div class="dropdown hint admonition">
+<p class="admonition-title">Code 7</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrRW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.connections</span><span class="w"> </span><span class="kn">import</span> <span class="n">IPConnectionSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">command</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.http_connection</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPConnection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.config_fan_sender_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigFanAttributeIORef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinParameter</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleFrameProcessorAdapterController</span><span class="p">(</span><span class="n">FrameProcessorAdapterController</span><span class="p">):</span>
+    <span class="n">frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleDetectorAdapterController</span><span class="p">(</span><span class="n">OdinAdapterController</span><span class="p">):</span>
+    <span class="n">config_frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+<span class="hll">    <span class="n">start</span><span class="p">:</span> <span class="n">Command</span>
+</span><span class="hll">    <span class="n">stop</span><span class="p">:</span> <span class="n">Command</span>
+</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">OdinController</span><span class="p">):</span>
+    <span class="n">FP</span><span class="p">:</span> <span class="n">ExampleFrameProcessorAdapterController</span>
+    <span class="n">DETECTOR</span><span class="p">:</span> <span class="n">ExampleDetectorAdapterController</span>
+
+<span class="hll">    <span class="nd">@command</span><span class="p">()</span>
+</span><span class="hll">    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="hll">        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">start_writing</span><span class="p">()</span>
+</span><span class="hll">        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span><span class="hll">
+</span><span class="hll">    <span class="nd">@command</span><span class="p">()</span>
+</span><span class="hll">    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="hll">        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">stop_writing</span><span class="p">()</span>
+</span><span class="hll">        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialise</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_path</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_prefix</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">config_frames</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_adapter_controller</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">connection</span><span class="p">:</span> <span class="n">HTTPConnection</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OdinParameter</span><span class="p">],</span>
+        <span class="n">adapter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseController</span><span class="p">:</span>
+        <span class="k">match</span> <span class="n">module</span><span class="p">:</span>
+            <span class="k">case</span> <span class="s2">&quot;ExampleDetectorAdapter&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExampleDetectorAdapterController</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+                <span class="p">)</span>
+            <span class="k">case</span> <span class="s2">&quot;FrameProcessorAdapter&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExampleFrameProcessorAdapterController</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+                <span class="p">)</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_adapter_controller</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">adapter</span><span class="p">,</span> <span class="n">module</span>
+                <span class="p">)</span>
+
+
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
+    <span class="n">controller</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="n">EpicsCATransport</span><span class="p">(</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
+            <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">FrameProcessorAdapterController</span></code> already has <code class="docutils literal notranslate"><span class="pre">start_writing</span></code> and <code class="docutils literal notranslate"><span class="pre">stop_writing</span></code> defined
+statically, so they do not need to be added to
+<code class="docutils literal notranslate"><span class="pre">ExampleFrameProcessorAdapterController</span></code>.</p>
+</div>
+<p>After running and reloading Phoebus, an acquisition can now be started and stopped from
+the top screen.</p>
+</section>
+<section id="adding-status-attributes">
+<h2>Adding Status Attributes<a class="headerlink" href="#adding-status-attributes" title="Link to this heading">#</a></h2>
+<p>The top screen can trigger acquisitions but has no status. <code class="docutils literal notranslate"><span class="pre">status_acquiring</span></code> and
+<code class="docutils literal notranslate"><span class="pre">status_frames</span></code> type hints should be added to <code class="docutils literal notranslate"><span class="pre">ExampleDetectorAdapterController</span></code>, and
+top-level summary attributes created that aggregate status from multiple sub
+controllers.</p>
+<div class="dropdown hint admonition">
+<p class="admonition-title">Code 8</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrR</span><span class="p">,</span> <span class="n">AttrRW</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.connections</span><span class="w"> </span><span class="kn">import</span> <span class="n">IPConnectionSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseController</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.http_connection</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPConnection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.config_fan_sender_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigFanAttributeIORef</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.status_summary_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatusSummaryAttributeIORef</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinParameter</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleFrameProcessorAdapterController</span><span class="p">(</span><span class="n">FrameProcessorAdapterController</span><span class="p">):</span>
+    <span class="n">frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleDetectorAdapterController</span><span class="p">(</span><span class="n">OdinAdapterController</span><span class="p">):</span>
+    <span class="n">config_frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+<span class="hll">    <span class="n">status_acquiring</span><span class="p">:</span> <span class="n">AttrR</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+</span><span class="hll">    <span class="n">status_frames</span><span class="p">:</span> <span class="n">AttrR</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+</span>
+    <span class="n">start</span><span class="p">:</span> <span class="n">Command</span>
+    <span class="n">stop</span><span class="p">:</span> <span class="n">Command</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">OdinController</span><span class="p">):</span>
+    <span class="n">FP</span><span class="p">:</span> <span class="n">ExampleFrameProcessorAdapterController</span>
+    <span class="n">DETECTOR</span><span class="p">:</span> <span class="n">ExampleDetectorAdapterController</span>
+
+    <span class="nd">@command</span><span class="p">()</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">start_writing</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="nd">@command</span><span class="p">()</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">stop_writing</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialise</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_path</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_prefix</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">config_frames</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+<span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">acquiring</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">Bool</span><span class="p">(),</span>
+</span><span class="hll">            <span class="n">io_ref</span><span class="o">=</span><span class="n">StatusSummaryAttributeIORef</span><span class="p">(</span>
+</span><span class="hll">                <span class="p">[],</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">any</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">writing</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">status_acquiring</span><span class="p">]</span>
+</span><span class="hll">            <span class="p">),</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">frames_captured</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">Int</span><span class="p">(),</span>
+</span><span class="hll">            <span class="n">io_ref</span><span class="o">=</span><span class="n">StatusSummaryAttributeIORef</span><span class="p">(</span>
+</span><span class="hll">                <span class="p">[],</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">status_frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">frames_written</span><span class="p">]</span>
+</span><span class="hll">            <span class="p">),</span>
+</span><span class="hll">        <span class="p">)</span>
+</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_adapter_controller</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">connection</span><span class="p">:</span> <span class="n">HTTPConnection</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OdinParameter</span><span class="p">],</span>
+        <span class="n">adapter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseController</span><span class="p">:</span>
+        <span class="k">match</span> <span class="n">module</span><span class="p">:</span>
+            <span class="k">case</span> <span class="s2">&quot;ExampleDetectorAdapter&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExampleDetectorAdapterController</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+                <span class="p">)</span>
+            <span class="k">case</span> <span class="s2">&quot;FrameProcessorAdapter&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExampleFrameProcessorAdapterController</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+                <span class="p">)</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_adapter_controller</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">adapter</span><span class="p">,</span> <span class="n">module</span>
+                <span class="p">)</span>
+
+
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
+    <span class="n">controller</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="n">EpicsCATransport</span><span class="p">(</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
+            <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">StatusSummaryAttributeIORef</span></code> aggregates values from multiple attributes. The <code class="docutils literal notranslate"><span class="pre">any</span></code>
+function is used for <code class="docutils literal notranslate"><span class="pre">acquiring</span></code> (true if any source is active) and <code class="docutils literal notranslate"><span class="pre">min</span></code> for
+<code class="docutils literal notranslate"><span class="pre">frames_captured</span></code> (the lowest count across sources).</p>
+</section>
+<section id="controller-logic">
+<h2>Controller Logic<a class="headerlink" href="#controller-logic" title="Link to this heading">#</a></h2>
+<p>There is a risk that the file writer is slower to start than the detector and frames will
+be missed. <code class="docutils literal notranslate"><span class="pre">wait_for_value</span></code> can be used to ensure that the file writers have started
+before starting the detector.</p>
+<div class="dropdown hint admonition">
+<p class="admonition-title">Code 9</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrR</span><span class="p">,</span> <span class="n">AttrRW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.connections</span><span class="w"> </span><span class="kn">import</span> <span class="n">IPConnectionSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.http_connection</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPConnection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.config_fan_sender_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigFanAttributeIORef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.status_summary_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatusSummaryAttributeIORef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinParameter</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleFrameProcessorAdapterController</span><span class="p">(</span><span class="n">FrameProcessorAdapterController</span><span class="p">):</span>
+    <span class="n">frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleDetectorAdapterController</span><span class="p">(</span><span class="n">OdinAdapterController</span><span class="p">):</span>
+    <span class="n">config_frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+    <span class="n">status_acquiring</span><span class="p">:</span> <span class="n">AttrR</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+    <span class="n">status_frames</span><span class="p">:</span> <span class="n">AttrR</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+    <span class="n">start</span><span class="p">:</span> <span class="n">Command</span>
+    <span class="n">stop</span><span class="p">:</span> <span class="n">Command</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">OdinController</span><span class="p">):</span>
+    <span class="n">FP</span><span class="p">:</span> <span class="n">ExampleFrameProcessorAdapterController</span>
+    <span class="n">DETECTOR</span><span class="p">:</span> <span class="n">ExampleDetectorAdapterController</span>
+
+    <span class="nd">@command</span><span class="p">()</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">start_writing</span><span class="p">()</span>
+<span class="hll">        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">writing</span><span class="o">.</span><span class="n">wait_for_value</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="nd">@command</span><span class="p">()</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">stop_writing</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialise</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_path</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_prefix</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">config_frames</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">acquiring</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span>
+            <span class="n">Bool</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">StatusSummaryAttributeIORef</span><span class="p">(</span>
+                <span class="p">[],</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">any</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">writing</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">status_acquiring</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames_captured</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">StatusSummaryAttributeIORef</span><span class="p">(</span>
+                <span class="p">[],</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">status_frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">frames_written</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_adapter_controller</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">connection</span><span class="p">:</span> <span class="n">HTTPConnection</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OdinParameter</span><span class="p">],</span>
+        <span class="n">adapter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseController</span><span class="p">:</span>
+        <span class="k">match</span> <span class="n">module</span><span class="p">:</span>
+            <span class="k">case</span> <span class="s2">&quot;ExampleDetectorAdapter&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExampleDetectorAdapterController</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+                <span class="p">)</span>
+            <span class="k">case</span> <span class="s2">&quot;FrameProcessorAdapter&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExampleFrameProcessorAdapterController</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+                <span class="p">)</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_adapter_controller</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">adapter</span><span class="p">,</span> <span class="n">module</span>
+                <span class="p">)</span>
+
+
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
+    <span class="n">controller</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="n">EpicsCATransport</span><span class="p">(</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
+            <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="live-view-with-scan-methods">
+<h2>Live View with Scan Methods<a class="headerlink" href="#live-view-with-scan-methods" title="Link to this heading">#</a></h2>
+<p>The live view adapter can be used to see frames as they pass through. A <code class="docutils literal notranslate"><span class="pre">Waveform</span></code>
+attribute can be added to display the image along with a <code class="docutils literal notranslate"><span class="pre">&#64;scan</span></code> method to periodically
+query the live view adapter for images.</p>
+<div class="dropdown hint admonition">
+<p class="admonition-title">Code 10</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="hll"><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrR</span><span class="p">,</span> <span class="n">AttrRW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.connections</span><span class="w"> </span><span class="kn">import</span> <span class="n">IPConnectionSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseController</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Waveform</span>
+</span><span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">scan</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.http_connection</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPConnection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.config_fan_sender_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigFanAttributeIORef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.status_summary_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatusSummaryAttributeIORef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinParameter</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleFrameProcessorAdapterController</span><span class="p">(</span><span class="n">FrameProcessorAdapterController</span><span class="p">):</span>
+    <span class="n">frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleDetectorAdapterController</span><span class="p">(</span><span class="n">OdinAdapterController</span><span class="p">):</span>
+    <span class="n">config_frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+    <span class="n">status_acquiring</span><span class="p">:</span> <span class="n">AttrR</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+    <span class="n">status_frames</span><span class="p">:</span> <span class="n">AttrR</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+    <span class="n">start</span><span class="p">:</span> <span class="n">Command</span>
+    <span class="n">stop</span><span class="p">:</span> <span class="n">Command</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">OdinController</span><span class="p">):</span>
+    <span class="n">FP</span><span class="p">:</span> <span class="n">ExampleFrameProcessorAdapterController</span>
+    <span class="n">DETECTOR</span><span class="p">:</span> <span class="n">ExampleDetectorAdapterController</span>
+
+<span class="hll">    <span class="n">live_view_image</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span><span class="n">Waveform</span><span class="p">(</span><span class="s2">&quot;uint8&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">)))</span>
+</span>
+<span class="hll">    <span class="nd">@scan</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class="hll">    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">monitor_live_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="hll">        <span class="n">response</span><span class="p">,</span> <span class="n">image_bytes</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">get_bytes</span><span class="p">(</span>
+</span><span class="hll">            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/live/image&quot;</span>
+</span><span class="hll">        <span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+</span><span class="hll">            <span class="k">return</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">))</span>
+</span><span class="hll">        <span class="n">numpy_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+</span><span class="hll">        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_view_image</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">numpy_array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">])</span>
+</span>
+    <span class="nd">@command</span><span class="p">()</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">start_writing</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">writing</span><span class="o">.</span><span class="n">wait_for_value</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="nd">@command</span><span class="p">()</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">stop_writing</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialise</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_path</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_prefix</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">config_frames</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">acquiring</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span>
+            <span class="n">Bool</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">StatusSummaryAttributeIORef</span><span class="p">(</span>
+                <span class="p">[],</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">any</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">writing</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">status_acquiring</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames_captured</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">StatusSummaryAttributeIORef</span><span class="p">(</span>
+                <span class="p">[],</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">status_frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">frames_written</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_adapter_controller</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">connection</span><span class="p">:</span> <span class="n">HTTPConnection</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OdinParameter</span><span class="p">],</span>
+        <span class="n">adapter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseController</span><span class="p">:</span>
+        <span class="k">match</span> <span class="n">module</span><span class="p">:</span>
+            <span class="k">case</span> <span class="s2">&quot;ExampleDetectorAdapter&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExampleDetectorAdapterController</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+                <span class="p">)</span>
+            <span class="k">case</span> <span class="s2">&quot;FrameProcessorAdapter&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExampleFrameProcessorAdapterController</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+                <span class="p">)</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_adapter_controller</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">adapter</span><span class="p">,</span> <span class="n">module</span>
+                <span class="p">)</span>
+
+
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
+    <span class="n">controller</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="n">EpicsCATransport</span><span class="p">(</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
+            <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The image dimensions and dtype could be queried from <code class="docutils literal notranslate"><span class="pre">LIVE.Shape</span></code> and <code class="docutils literal notranslate"><span class="pre">LIVE.FrameDtype</span></code>
+at runtime to create <code class="docutils literal notranslate"><span class="pre">live_view_image</span></code> dynamically.</p>
+</div>
+<p>The EPICS CA transport does not support 2D arrays, so it will give a warning and the
+<code class="docutils literal notranslate"><span class="pre">LiveViewImage</span></code> PV will not be created via CA.</p>
+</section>
+<section id="adding-pv-access">
+<h2>Adding PV Access<a class="headerlink" href="#adding-pv-access" title="Link to this heading">#</a></h2>
+<p>An <code class="docutils literal notranslate"><span class="pre">EpicsPVATransport</span></code> can be added alongside the existing <code class="docutils literal notranslate"><span class="pre">EpicsCATransport</span></code> to serve
+both transports simultaneously. PVA supports 2D array attributes, so the
+<code class="docutils literal notranslate"><span class="pre">LiveViewImage</span></code> PV will be available over PVA.</p>
+<div class="dropdown hint admonition">
+<p class="admonition-title">Code 11</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrR</span><span class="p">,</span> <span class="n">AttrRW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.connections</span><span class="w"> </span><span class="kn">import</span> <span class="n">IPConnectionSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Waveform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">scan</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.http_connection</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPConnection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.config_fan_sender_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigFanAttributeIORef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.status_summary_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatusSummaryAttributeIORef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinParameter</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleFrameProcessorAdapterController</span><span class="p">(</span><span class="n">FrameProcessorAdapterController</span><span class="p">):</span>
+    <span class="n">frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleDetectorAdapterController</span><span class="p">(</span><span class="n">OdinAdapterController</span><span class="p">):</span>
+    <span class="n">config_frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+    <span class="n">status_acquiring</span><span class="p">:</span> <span class="n">AttrR</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+    <span class="n">status_frames</span><span class="p">:</span> <span class="n">AttrR</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+    <span class="n">start</span><span class="p">:</span> <span class="n">Command</span>
+    <span class="n">stop</span><span class="p">:</span> <span class="n">Command</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">OdinController</span><span class="p">):</span>
+    <span class="n">FP</span><span class="p">:</span> <span class="n">ExampleFrameProcessorAdapterController</span>
+    <span class="n">DETECTOR</span><span class="p">:</span> <span class="n">ExampleDetectorAdapterController</span>
+
+    <span class="n">live_view_image</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span><span class="n">Waveform</span><span class="p">(</span><span class="s2">&quot;uint8&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">)))</span>
+
+    <span class="nd">@scan</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">monitor_live_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">response</span><span class="p">,</span> <span class="n">image_bytes</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">get_bytes</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/live/image&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">))</span>
+        <span class="n">numpy_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_view_image</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">numpy_array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="nd">@command</span><span class="p">()</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">start_writing</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">writing</span><span class="o">.</span><span class="n">wait_for_value</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="nd">@command</span><span class="p">()</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">stop_writing</span><span class="p">()</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialise</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_path</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_prefix</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">config_frames</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">acquiring</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span>
+            <span class="n">Bool</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">StatusSummaryAttributeIORef</span><span class="p">(</span>
+                <span class="p">[],</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">any</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">writing</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">status_acquiring</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames_captured</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">StatusSummaryAttributeIORef</span><span class="p">(</span>
+                <span class="p">[],</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">status_frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">frames_written</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_adapter_controller</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">connection</span><span class="p">:</span> <span class="n">HTTPConnection</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OdinParameter</span><span class="p">],</span>
+        <span class="n">adapter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseController</span><span class="p">:</span>
+        <span class="k">match</span> <span class="n">module</span><span class="p">:</span>
+            <span class="k">case</span> <span class="s2">&quot;ExampleDetectorAdapter&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExampleDetectorAdapterController</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+                <span class="p">)</span>
+            <span class="k">case</span> <span class="s2">&quot;FrameProcessorAdapter&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExampleFrameProcessorAdapterController</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+                <span class="p">)</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_adapter_controller</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">adapter</span><span class="p">,</span> <span class="n">module</span>
+                <span class="p">)</span>
+
+
+<span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
+    <span class="n">controller</span><span class="p">,</span>
+<span class="hll">    <span class="p">[</span>
+</span><span class="hll">        <span class="n">EpicsCATransport</span><span class="p">(</span>
+</span><span class="hll">            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
+</span><span class="hll">            <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
+</span><span class="hll">                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">),</span>
+</span>        <span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>An acquisition can be run and the live view watched (LiveViewImage button):</p>
+<ol class="arabic simple">
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">DETECTOR.Frames</span></code> = <code class="docutils literal notranslate"><span class="pre">0</span></code> (continuous)</p></li>
+<li><p>Press <code class="docutils literal notranslate"><span class="pre">DETECTOR.Start</span></code></p></li>
+</ol>
+</section>
+<section id="logging-and-tracing">
+<h2>Logging and Tracing<a class="headerlink" href="#logging-and-tracing" title="Link to this heading">#</a></h2>
+<p>There is a custom logger built into fastcs that allows structured logging and
+trace-level logging that can be enabled at runtime per-attribute.</p>
+<p>Add INFO level log statements to the <code class="docutils literal notranslate"><span class="pre">acquire</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code> commands to record when
+writing starts and stops.</p>
+<div class="dropdown hint admonition">
+<p class="admonition-title">Code 12</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttrR</span><span class="p">,</span> <span class="n">AttrRW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.connections</span><span class="w"> </span><span class="kn">import</span> <span class="n">IPConnectionSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.control_system</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastCS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Int</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Waveform</span>
+<span class="hll"><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogLevel</span><span class="p">,</span> <span class="n">configure_logging</span><span class="p">,</span> <span class="n">logger</span>
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">scan</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCAOptions</span><span class="p">,</span> <span class="n">EpicsGUIOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs.transports.epics.ca.transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">EpicsCATransport</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinController</span><span class="p">,</span> <span class="n">OdinControllerSettings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_adapter_controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinAdapterController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.controllers.odin_data.frame_processor</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FrameProcessorAdapterController</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.http_connection</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPConnection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.config_fan_sender_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigFanAttributeIORef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.io.status_summary_attribute_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatusSummaryAttributeIORef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastcs_odin.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">OdinParameter</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleFrameProcessorAdapterController</span><span class="p">(</span><span class="n">FrameProcessorAdapterController</span><span class="p">):</span>
+    <span class="n">frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleDetectorAdapterController</span><span class="p">(</span><span class="n">OdinAdapterController</span><span class="p">):</span>
+    <span class="n">config_frames</span><span class="p">:</span> <span class="n">AttrRW</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+    <span class="n">status_acquiring</span><span class="p">:</span> <span class="n">AttrR</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+    <span class="n">status_frames</span><span class="p">:</span> <span class="n">AttrR</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+    <span class="n">start</span><span class="p">:</span> <span class="n">Command</span>
+    <span class="n">stop</span><span class="p">:</span> <span class="n">Command</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ExampleOdinController</span><span class="p">(</span><span class="n">OdinController</span><span class="p">):</span>
+    <span class="n">FP</span><span class="p">:</span> <span class="n">ExampleFrameProcessorAdapterController</span>
+    <span class="n">DETECTOR</span><span class="p">:</span> <span class="n">ExampleDetectorAdapterController</span>
+
+    <span class="n">live_view_image</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span><span class="n">Waveform</span><span class="p">(</span><span class="s2">&quot;uint8&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">)))</span>
+
+    <span class="nd">@scan</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">monitor_live_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">response</span><span class="p">,</span> <span class="n">image_bytes</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">get_bytes</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/live/image&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">))</span>
+        <span class="n">numpy_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">live_view_image</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">numpy_array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="nd">@command</span><span class="p">()</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting writing&quot;</span><span class="p">)</span>
+<span class="hll">        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">start_writing</span><span class="p">()</span>
+</span>        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">writing</span><span class="o">.</span><span class="n">wait_for_value</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="nd">@command</span><span class="p">()</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Stopping writing&quot;</span><span class="p">)</span>
+<span class="hll">        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">stop_writing</span><span class="p">()</span>
+</span>        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialise</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_path</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">String</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">file_prefix</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">AttrRW</span><span class="p">(</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">ConfigFanAttributeIORef</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">config_frames</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">acquiring</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span>
+            <span class="n">Bool</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">StatusSummaryAttributeIORef</span><span class="p">(</span>
+                <span class="p">[],</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">any</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">writing</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">status_acquiring</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames_captured</span> <span class="o">=</span> <span class="n">AttrR</span><span class="p">(</span>
+            <span class="n">Int</span><span class="p">(),</span>
+            <span class="n">io_ref</span><span class="o">=</span><span class="n">StatusSummaryAttributeIORef</span><span class="p">(</span>
+                <span class="p">[],</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DETECTOR</span><span class="o">.</span><span class="n">status_frames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">FP</span><span class="o">.</span><span class="n">frames_written</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_adapter_controller</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">connection</span><span class="p">:</span> <span class="n">HTTPConnection</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OdinParameter</span><span class="p">],</span>
+        <span class="n">adapter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseController</span><span class="p">:</span>
+        <span class="k">match</span> <span class="n">module</span><span class="p">:</span>
+            <span class="k">case</span> <span class="s2">&quot;ExampleDetectorAdapter&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExampleDetectorAdapterController</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+                <span class="p">)</span>
+            <span class="k">case</span> <span class="s2">&quot;FrameProcessorAdapter&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ExampleFrameProcessorAdapterController</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">adapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ios</span>
+                <span class="p">)</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_adapter_controller</span><span class="p">(</span>
+                    <span class="n">connection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">adapter</span><span class="p">,</span> <span class="n">module</span>
+                <span class="p">)</span>
+
+
+<span class="n">configure_logging</span><span class="p">(</span><span class="n">LogLevel</span><span class="o">.</span><span class="n">TRACE</span><span class="p">)</span>
+<span class="hll">
+</span><span class="n">controller</span> <span class="o">=</span> <span class="n">ExampleOdinController</span><span class="p">(</span>
+    <span class="n">OdinControllerSettings</span><span class="p">(</span><span class="n">IPConnectionSettings</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="mi">8888</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">set_path</span><span class="p">([</span><span class="s2">&quot;EXAMPLE&quot;</span><span class="p">])</span>
+
+<span class="n">fastcs</span> <span class="o">=</span> <span class="n">FastCS</span><span class="p">(</span>
+    <span class="n">controller</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="n">EpicsCATransport</span><span class="p">(</span>
+            <span class="n">EpicsCAOptions</span><span class="p">(),</span>
+            <span class="n">gui</span><span class="o">=</span><span class="n">EpicsGUIOptions</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;opis&quot;</span> <span class="o">/</span> <span class="s2">&quot;example.bob&quot;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Odin Example Detector&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">fastcs</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Running an acquisition will then produce log output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="mi">2025</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">23</span> <span class="mi">12</span><span class="p">:</span><span class="mi">07</span><span class="p">:</span><span class="mf">31.615</span><span class="o">+</span><span class="mi">0000</span> <span class="n">I</span><span class="p">]</span> <span class="n">Starting</span> <span class="n">writing</span>
+<span class="p">[</span><span class="mi">2025</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">23</span> <span class="mi">12</span><span class="p">:</span><span class="mi">07</span><span class="p">:</span><span class="mf">32.012</span><span class="o">+</span><span class="mi">0000</span> <span class="n">I</span><span class="p">]</span> <span class="n">Stopping</span> <span class="n">writing</span>
+</pre></div>
+</div>
+<p>TRACE level logging must be configured for trace messages to appear. This will not
+produce additional output until tracing is enabled at runtime, although it will enable
+DEBUG level output. There are trace level messages logged throughout the fastcs
+codebase to enable debugging live systems. All classes that inherit <code class="docutils literal notranslate"><span class="pre">Tracer</span></code> can call
+<code class="docutils literal notranslate"><span class="pre">log_event</span></code> to emit trace messages, which can be enabled at runtime by calling
+<code class="docutils literal notranslate"><span class="pre">enable_tracing</span></code>. For example, <code class="docutils literal notranslate"><span class="pre">Attribute</span></code>s:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">controller</span><span class="o">.</span><span class="n">FP</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">HDF</span><span class="o">.</span><span class="n">file_path</span><span class="o">.</span><span class="n">enable_tracing</span><span class="p">()</span>
+<span class="p">[</span><span class="mi">2025</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">23</span> <span class="mi">12</span><span class="p">:</span><span class="mi">07</span><span class="p">:</span><span class="mf">31.615</span><span class="o">+</span><span class="mi">0000</span> <span class="n">T</span><span class="p">]</span> <span class="n">Query</span> <span class="k">for</span> <span class="n">parameter</span> <span class="p">[</span><span class="n">ParameterTreeAttributeIO</span><span class="p">]</span> <span class="n">uri</span><span class="o">=</span><span class="n">api</span><span class="o">/</span><span class="mf">0.1</span><span class="o">/</span><span class="n">fp</span><span class="o">/</span><span class="mi">0</span><span class="o">/</span><span class="n">config</span><span class="o">/</span><span class="n">hdf</span><span class="o">/</span><span class="n">file</span><span class="o">/</span><span class="n">path</span><span class="p">,</span> <span class="n">response</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="s1">&#39;/tmp&#39;</span><span class="p">}</span>
+<span class="o">...</span>
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">controller</span><span class="o">.</span><span class="n">FP</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">HDF</span><span class="o">.</span><span class="n">file_path</span><span class="o">.</span><span class="n">disable_tracing</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="installation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../how-to.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">How-to Guides</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-up">Set Up</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#odin-deployment">Odin Deployment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-environment">Python Environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phoebus">Phoebus</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-minimal-controller">A Minimal Controller</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-an-epics-transport">Adding an EPICS Transport</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generating-a-phoebus-ui">Generating a Phoebus UI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#connecting-to-odin">Connecting to Odin</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phoebus-ui">Phoebus UI</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-an-acquisition">Running an Acquisition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#improving-the-api">Improving the API</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#type-hints-for-sub-controllers">Type Hints for Sub Controllers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-commands">Adding Commands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-status-attributes">Adding Status Attributes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#controller-logic">Controller Logic</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#live-view-with-scan-methods">Live View with Scan Methods</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-pv-access">Adding PV Access</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-and-tracing">Logging and Tracing</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/DiamondLightSource/fastcs-odin/edit/0.10.0/docs/tutorials/odin-detector.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/tutorials/odin-detector.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
